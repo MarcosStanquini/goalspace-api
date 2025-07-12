@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  api-metaflow-pg:
+    image: bitnami/postgresql
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRESQL_USER=docker
+      - POSTGRESQL_PASSWORD=docker
+      - POSTGRESQL_DATABASE=apimetaflow

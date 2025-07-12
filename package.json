@@ -1,0 +1,26 @@
+{
+  "name": "projetonode",
+  "version": "1.0.0",
+  "description": "RF01 O sistema deve permitir o cadastro de usuários com nome, e-mail e senha \r RF02 O sistema deve permitir o login com e-mail e senha, retornando um token JWT \r RF03 O sistema deve proteger todas as rotas (exceto login e cadastro) com autenticação \r JWT \r RF04 O sistema deve permitir que o usuário crie metas (goals) com título, deadline e \r descrição opcional \r RF05 O sistema deve listar as metas do usuário, com paginação via query params \r RF06 O sistema deve permitir filtrar metas por status (active, completed, expired) \r RF07 O sistema deve permitir o detalhamento de uma meta, incluindo suas subtarefas \r RF08 O sistema deve permitir editar título, descrição ou deadline de uma meta \r RF09 O sistema deve permitir excluir uma meta, incluindo suas subtarefas associadas \r RF10 O sistema deve permitir o cadastro de subtarefas para uma meta \r RF11 O sistema deve permitir marcar/desmarcar uma subtarefa como concluída \r RF12 O sistema deve permitir excluir uma subtarefa \r RF13 O sistema deve calcular dinamicamente o status de uma meta com base na deadline e \r conclusão \r RF14 O sistema deve expor um dashboard resumido do progresso do usuário \r RF15 O sistema deve permitir o logout (opcional) limpando o cookie/token",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rocketseat/eslint-config": "2.2.2",
+    "@types/node": "24.0.12",
+    "tsup": "8.5.0",
+    "tsx": "4.20.3",
+    "typescript": "5.8.3"
+  },
+  "dependencies": {
+    "@prisma/client": "6.11.1",
+    "dotenv": "17.2.0",
+    "fastify": "5.4.0",
+    "prisma": "6.11.1",
+    "zod": "3.25.76"
+  }
+}
