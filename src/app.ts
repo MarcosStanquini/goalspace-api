@@ -1,10 +1,12 @@
 import fastify from 'fastify'
-import { appRoutes } from './http/routes/users-routes'
 import { ZodError } from 'zod'
 import { env } from './env'
+import { UserRoutes } from './modules/users/routes'
+import { GoalsRoutes } from './modules/goals/routes'
 
 export const app = fastify()
-app.register(appRoutes)
+app.register(UserRoutes)
+app.register(GoalsRoutes)
 
 app.setErrorHandler((error, _, reply) => {
   if (error instanceof ZodError) {
