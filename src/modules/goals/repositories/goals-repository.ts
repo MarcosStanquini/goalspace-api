@@ -9,4 +9,5 @@ export interface rawGoalInput {
 
 export interface GoalsRepository {
   create(data: rawGoalInput): Promise<Goal>
+  findManyByUserId(user_id: string): Promise<Goal[] | null>
 }

@@ -2,7 +2,7 @@ import { GoalsRepository } from '../repositories/goals-repository'
 import { UsersRepository } from '@/modules/users/repositories/users-repository'
 import { UserNotExists } from '@/modules/users/use-cases/errors/user-not-exists-error'
 
-interface createGoalUseCaseRequest {
+interface CreateGoalUseCaseRequest {
   title: string
   description?: string
   deadline: Date
@@ -20,7 +20,7 @@ export class CreateGoalUseCase {
     description,
     deadline,
     user_id,
-  }: createGoalUseCaseRequest) {
+  }: CreateGoalUseCaseRequest) {
     const user = await this.usersRepository.findById(user_id)
 
     if (!user) {
