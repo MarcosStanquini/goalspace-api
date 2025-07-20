@@ -28,10 +28,9 @@ export class CreateGoalUseCase {
       throw new UserNotExistsError()
     }
 
-    const isInvalid = !(deadline instanceof Date) || isNaN(deadline.getTime())
     const isInPast = deadline.getTime() < Date.now()
 
-    if (isInvalid || isInPast) {
+    if (isInPast) {
       throw new InvalidDeadline()
     }
 
