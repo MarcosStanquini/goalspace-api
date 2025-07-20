@@ -1,5 +1,5 @@
 import { GoalsRepository } from '../repositories/goals-repository'
-import { GoalsNotExists } from './errors/goals-not-exists'
+import { GoalNotFound } from './errors/goal-not-found'
 
 interface GetGoalByUserRequest {
   user_id: string
@@ -12,7 +12,7 @@ export class GetGoalByUserUseCase {
     const goals = await this.goalsRepository.findManyByUserId(user_id)
 
     if (!goals || goals.length === 0) {
-      throw new GoalsNotExists()
+      throw new GoalNotFound()
     }
 
     return goals

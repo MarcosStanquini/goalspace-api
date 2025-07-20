@@ -3,7 +3,7 @@ import z from 'zod'
 import { PrismaGoalsRepository } from '../repositories/prisma/prisma-goals-repository'
 import { CreateGoalUseCase } from '../use-cases/create'
 import { PrismaUsersRepository } from '@/modules/users/repositories/prisma/prisma-users-repository'
-import { UserNotExistsError } from '@/modules/users/use-cases/errors/user-not-exists-error'
+import { UserNotExistsError } from '@/modules/users/use-cases/errors/user-not-found-error'
 import { InvalidDeadline } from '../use-cases/errors/invalid-deadline'
 
 export async function create(request: FastifyRequest, reply: FastifyReply) {

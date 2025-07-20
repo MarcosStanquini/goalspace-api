@@ -1,4 +1,4 @@
-export class GoalsNotExists extends Error {
+export class GoalNotFound extends Error {
   constructor() {
     super('Goals not exists!')
   }
