@@ -1,8 +1,12 @@
 import { prisma } from '@/lib/prisma'
-import { GoalsRepository, rawGoalInput } from '../goals-repository'
+import {
+  GoalsRepository,
+  goalUpdateInput,
+  rawGoalInput,
+} from '../goals-repository'
 
 export class PrismaGoalsRepository implements GoalsRepository {
-  async updateToCompleted(user_id: string, id: string) {
+  async update(user_id: string, id: string, data: goalUpdateInput) {
     const goal = await prisma.goal.findFirst({
       where: {
         user_id,
@@ -17,7 +21,10 @@ export class PrismaGoalsRepository implements GoalsRepository {
     return await prisma.goal.update({
       where: { id },
       data: {
-        isCompleted: true,
+        title: data.title,
+        description: data.description,
+        isCompleted: data.isCompleted,
+        deadline: data.deadline,
       },
     })
   }

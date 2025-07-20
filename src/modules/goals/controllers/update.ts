@@ -1,29 +1,41 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import z from 'zod'
 import { PrismaGoalsRepository } from '../repositories/prisma/prisma-goals-repository'
-import { MarkStatusCompletedUseCase } from '../use-cases/mark-completed'
+import { UpdateGoalUseCase } from '../use-cases/update'
 import { GoalNotFound } from '../use-cases/errors/goal-not-found'
 
-export async function markStatusCompleted(
-  request: FastifyRequest,
-  reply: FastifyReply,
-) {
+export async function updateGoal(request: FastifyRequest, reply: FastifyReply) {
   const paramsSchema = z.object({
     user_id: z.string().uuid(),
     id: z.string().uuid(),
   })
 
+  const updateBodySchema = z.object({
+    title: z.string().optional(),
+    description: z.string().optional(),
+    deadline: z.date().optional(),
+    isCompleted: z.boolean().optional(),
+  })
+
   const { user_id, id } = paramsSchema.parse(request.params)
-  console.log(user_id)
-  console.log(id)
+  const { title, description, deadline, isCompleted } = updateBodySchema.parse(
+    request.body,
+  )
 
   let goal
 
   try {
     const goalsRepository = new PrismaGoalsRepository()
-    const markStatusCompleted = new MarkStatusCompletedUseCase(goalsRepository)
+    const updateGoal = new UpdateGoalUseCase(goalsRepository)
 
-    goal = await markStatusCompleted.execute({ user_id, id })
+    goal = await updateGoal.execute({
+      user_id,
+      id,
+      title,
+      description,
+      deadline,
+      isCompleted,
+    })
   } catch (err) {
     if (err instanceof GoalNotFound) {
       return reply.status(404).send({ message: err.message })
