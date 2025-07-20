@@ -1,6 +1,7 @@
 import { GoalsRepository } from '../repositories/goals-repository'
 import { UsersRepository } from '@/modules/users/repositories/users-repository'
-import { UserNotExists } from '@/modules/users/use-cases/errors/user-not-exists-error'
+import { UserNotExistsError } from '@/modules/users/use-cases/errors/user-not-exists-error'
+import { InvalidDeadline } from './errors/invalid-deadline'
 
 interface CreateGoalUseCaseRequest {
   title: string
@@ -24,7 +25,14 @@ export class CreateGoalUseCase {
     const user = await this.usersRepository.findById(user_id)
 
     if (!user) {
-      throw new UserNotExists()
+      throw new UserNotExistsError()
+    }
+
+    const isInvalid = !(deadline instanceof Date) || isNaN(deadline.getTime())
+    const isInPast = deadline.getTime() < Date.now()
+
+    if (isInvalid || isInPast) {
+      throw new InvalidDeadline()
     }
 
     await this.goalsRepository.create({
