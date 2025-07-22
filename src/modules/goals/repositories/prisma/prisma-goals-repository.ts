@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import {
   GoalsRepository,
   goalUpdateInput,
-  rawGoalInput,
+  RawGoalInput,
 } from '../goals-repository'
 
 export class PrismaGoalsRepository implements GoalsRepository {
@@ -38,7 +38,7 @@ export class PrismaGoalsRepository implements GoalsRepository {
     return goals
   }
 
-  async create(data: rawGoalInput) {
+  async create(data: RawGoalInput) {
     const goal = await prisma.goal.create({
       data: {
         title: data.title,

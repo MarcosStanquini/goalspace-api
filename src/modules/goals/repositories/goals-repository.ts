@@ -1,6 +1,6 @@
 import { Goal } from '@prisma/client'
 
-export interface rawGoalInput {
+export interface RawGoalInput {
   title: string
   description?: string
   deadline: Date
@@ -15,7 +15,7 @@ export interface goalUpdateInput {
 }
 
 export interface GoalsRepository {
-  create(data: rawGoalInput): Promise<Goal>
+  create(data: RawGoalInput): Promise<Goal>
   findManyByUserId(user_id: string): Promise<Goal[] | null>
   update(
     user_id: string,
