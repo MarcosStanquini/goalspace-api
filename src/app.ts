@@ -5,6 +5,7 @@ import { UserRoutes } from './modules/users/routes'
 import { GoalRoutes } from './modules/goals/routes'
 import { AuthenticateRoutes } from './modules/auth/route'
 import fastifyJwt from '@fastify/jwt'
+import { SubTaskRoutes } from './modules/subtasks/route'
 
 export const app = fastify()
 
@@ -15,6 +16,7 @@ app.register(fastifyJwt, {
 app.register(UserRoutes)
 app.register(GoalRoutes)
 app.register(AuthenticateRoutes)
+app.register(SubTaskRoutes)
 
 app.setErrorHandler((error, _, reply) => {
   if (error instanceof ZodError) {

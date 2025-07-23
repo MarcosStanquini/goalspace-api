@@ -22,4 +22,5 @@ export interface GoalsRepository {
     id: string,
     data: goalUpdateInput,
   ): Promise<Goal | null>
+  findById(id: string): Promise<Goal | null>
 }

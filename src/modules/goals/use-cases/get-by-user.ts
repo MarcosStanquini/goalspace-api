@@ -23,7 +23,6 @@ export class GetGoalByUserUseCase {
       description: goal.description,
       deadline: goal.deadline,
       created_at: goal.created_at,
-      user_id: goal.user_id,
       goal_status: calculateStatus(goal),
     }))
 

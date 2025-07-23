@@ -51,4 +51,13 @@ export class PrismaGoalsRepository implements GoalsRepository {
     })
     return goal
   }
+
+  async findById(id: string) {
+    const goal = await prisma.goal.findUnique({
+      where: {
+        id,
+      },
+    })
+    return goal
+  }
 }

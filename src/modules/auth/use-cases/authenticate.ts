@@ -19,7 +19,7 @@ export class AuthenticateUseCase {
     email,
     password,
   }: AuthenticateUseCaseRequest): Promise<AuthenticateUseCaseResponse> {
-    // Busca o usuario mo banco pelo e-mail
+    // Busca o usuario no banco pelo e-mail
     // Compara a senha da request com a do banco
     const user = await this.usersRepository.findByEmail(email)
 
