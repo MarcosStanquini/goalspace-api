@@ -18,6 +18,7 @@
     "typescript": "5.8.3"
   },
   "dependencies": {
+    "@fastify/jwt": "9.1.0",
     "@prisma/client": "6.11.1",
     "@types/bcryptjs": "2.4.6",
     "bcryptjs": "3.0.2",

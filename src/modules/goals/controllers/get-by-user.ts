@@ -8,15 +8,11 @@ export async function getGoalByUser(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const paramsSchema = z.object({
-    user_id: z.string().uuid(),
-  })
-
   const queryParamsSchema = z.object({
     goal_status: z.enum(['active', 'expired', 'completed']).optional(),
   })
 
-  const { user_id } = paramsSchema.parse(request.params)
+  const user_id = (request.user as { sub: string }).sub
   const { goal_status } = queryParamsSchema.parse(request.query)
 
   let goals

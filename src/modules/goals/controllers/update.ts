@@ -6,7 +6,6 @@ import { GoalNotFound } from '../use-cases/errors/goal-not-found'
 
 export async function updateGoal(request: FastifyRequest, reply: FastifyReply) {
   const paramsSchema = z.object({
-    user_id: z.string().uuid(),
     id: z.string().uuid(),
   })
 
@@ -17,7 +16,8 @@ export async function updateGoal(request: FastifyRequest, reply: FastifyReply) {
     isCompleted: z.boolean().optional(),
   })
 
-  const { user_id, id } = paramsSchema.parse(request.params)
+  const user_id = (request.user as { sub: string }).sub
+  const { id } = paramsSchema.parse(request.params)
   const { title, description, deadline, isCompleted } = updateBodySchema.parse(
     request.body,
   )

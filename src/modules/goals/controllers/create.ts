@@ -11,16 +11,15 @@ export async function create(request: FastifyRequest, reply: FastifyReply) {
     title: z.string(),
     description: z.string().optional(),
     deadline: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    user_id: z.string().uuid(),
   })
 
   const {
     title,
     description,
     deadline: deadlineString,
-    user_id,
   } = createBodySchema.parse(request.body)
 
+  const user_id = (request.user as { sub: string }).sub
   const deadline = new Date(deadlineString)
 
   try {
