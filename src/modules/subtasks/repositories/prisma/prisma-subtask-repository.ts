@@ -20,4 +20,26 @@ export class PrismaSubtaskRepository implements SubtaskRepository {
     })
     return subtasks
   }
+
+  async delete(id: string) {
+    const subtask = await prisma.subTask.findUnique({ where: { id } })
+
+    if (!subtask) {
+      return null
+    }
+
+    await prisma.subTask.delete({ where: { id } })
+    return true
+  }
+
+  async deleteManyByGoalId(goal_id: string) {
+    const subtasks = await prisma.subTask.findMany({ where: { goal_id } })
+
+    if (!subtasks) {
+      return null
+    }
+
+    await prisma.subTask.deleteMany({ where: { goal_id } })
+    return true
+  }
 }

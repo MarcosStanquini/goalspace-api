@@ -23,4 +23,5 @@ export interface GoalsRepository {
     data: goalUpdateInput,
   ): Promise<Goal | null>
   findById(id: string): Promise<Goal | null>
+  deleteById(id: string): Promise<boolean | null>
 }

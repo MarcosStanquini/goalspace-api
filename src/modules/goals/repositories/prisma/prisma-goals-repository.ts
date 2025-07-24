@@ -60,4 +60,19 @@ export class PrismaGoalsRepository implements GoalsRepository {
     })
     return goal
   }
+
+  async deleteById(id: string) {
+    const goal = await prisma.goal.findUnique({
+      where: { id },
+    })
+
+    if (!goal) {
+      return null
+    }
+
+    await prisma.goal.delete({
+      where: { id },
+    })
+    return true
+  }
 }
