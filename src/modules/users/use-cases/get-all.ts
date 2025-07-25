@@ -11,10 +11,11 @@ export class GetAllUseCase {
       throw new UserNotExistsError()
     }
     const usersWithoutPassword = users
-      ? users.map(({ name, email, role }) => ({
+      ? users.map(({ name, email, role, instanceName }) => ({
           name,
           email,
           role,
+          instanceName,
         }))
       : []
 

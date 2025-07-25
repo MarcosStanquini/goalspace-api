@@ -42,9 +42,9 @@ export class CreateInstanceUseCase {
         `Erro ao criar instância. Status: ${response.status}. Corpo: ${errorBody}`,
       )
     }
-    const data = await response.json()
+
     return {
-      data,
+      instanceName,
     }
   }
 }
