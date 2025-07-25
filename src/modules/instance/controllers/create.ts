@@ -15,7 +15,7 @@ export async function createInstance(
     const createInstanceUseCase = new CreateInstanceUseCase(usersRepository)
 
     const { instanceName } = await createInstanceUseCase.execute({ user_id })
-    return reply.status(200).send({ instanceName })
+    return reply.status(201).send({ instanceName })
   } catch (err) {
     if (err instanceof UserNotExistsError) {
       return reply.status(404).send({

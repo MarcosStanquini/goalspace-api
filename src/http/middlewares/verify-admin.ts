@@ -7,7 +7,8 @@ export async function verifyAdmin(
   const user = request.user as { sub: string; name: string; role: string }
 
   console.log(user)
+
   if (user.role !== 'ADMIN') {
-    return reply.status(403).send({ message: 'Acesso negado: apenas admins.' })
+    return reply.status(403).send({ message: 'Access denied: admin only.' })
   }
 }

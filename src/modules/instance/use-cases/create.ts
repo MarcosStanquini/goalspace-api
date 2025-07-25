@@ -39,7 +39,7 @@ export class CreateInstanceUseCase {
     if (!response.ok) {
       const errorBody = await response.text()
       throw new Error(
-        `Erro ao criar instância. Status: ${response.status}. Corpo: ${errorBody}`,
+        `Failed to create instance. Status: ${response.status}. Body: ${errorBody}`,
       )
     }
 
