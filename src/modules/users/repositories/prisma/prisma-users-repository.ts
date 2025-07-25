@@ -32,4 +32,10 @@ export class PrismaUsersRepository implements UsersRepository {
     const users = await prisma.user.findMany()
     return users
   }
+
+  async updateInstance(userId: string, instanceName: string) {
+    await prisma.user.update({ where: { id: userId }, data: { instanceName } })
+
+    return true
+  }
 }

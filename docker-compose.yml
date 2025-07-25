@@ -9,3 +9,13 @@ services:
       - POSTGRESQL_USER=docker
       - POSTGRESQL_PASSWORD=docker
       - POSTGRESQL_DATABASE=apimetaflow
+
+  evolution_api:
+    image: atendai/evolution-api:v1.8.7
+    container_name: evolution_api
+    ports:
+      - 8080:8080
+    environment:
+      - AUTHENTICATION_API_KEY=teste123123
+    depends_on:
+      - api-metaflow-pg

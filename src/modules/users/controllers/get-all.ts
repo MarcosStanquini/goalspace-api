@@ -12,7 +12,7 @@ export async function getAll(request: FastifyRequest, reply: FastifyReply) {
     users = await getAllUseCase.execute()
   } catch (err) {
     if (err instanceof UserNotExistsError) {
-      return reply.status(409).send({ message: err.message })
+      return reply.status(404).send({ message: err.message })
     }
     throw err
   }

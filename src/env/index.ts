@@ -6,6 +6,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string(),
   NODE_ENV: z.enum(['dev', 'test', 'production']).default('dev'),
   PORT: z.coerce.number().default(3333), // O coerce ele converte para number
+  EVOLUTION_API_KEY: z.string(),
 })
 
 // Faz a validação:

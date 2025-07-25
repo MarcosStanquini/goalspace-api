@@ -4,6 +4,7 @@ import z from 'zod'
 import { RegisterUseCase } from '@/modules/users/use-cases/register'
 import { PrismaUsersRepository } from '@/modules/users/repositories/prisma/prisma-users-repository'
 import { UserAlreadyExistsError } from '@/modules/users/use-cases/errors/user-already-exists-error'
+import { createInstance } from '@/modules/instance/create'
 
 export async function register(request: FastifyRequest, reply: FastifyReply) {
   const registerBodySchema = z.object({
@@ -28,6 +29,12 @@ export async function register(request: FastifyRequest, reply: FastifyReply) {
     }
     throw err
   }
+
+  createInstance('exampleInstance333')
+    .then(console.log)
+    .catch((err) => {
+      console.error('Erro ao criar instância:', err.message)
+    })
 
   return reply.status(201).send()
 }

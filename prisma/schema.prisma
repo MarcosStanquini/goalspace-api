@@ -8,11 +8,12 @@ datasource db {
 }
 
 model User {
-  id            String @id @default(uuid())
+  id            String  @id @default(uuid())
   name          String
-  email         String @unique
+  email         String  @unique
   password_hash String
-  role          Role   @default(USER)
+  role          Role    @default(USER)
+  instanceName  String?
   Goal          Goal[]
 
   @@map("users")
@@ -46,5 +47,3 @@ model SubTask {
 
   @@map("subtasks")
 }
-
-
