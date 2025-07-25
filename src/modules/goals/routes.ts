@@ -4,6 +4,7 @@ import { getGoalByUser } from './controllers/get-by-user'
 import { updateGoal } from './controllers/update'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { getDetails } from './controllers/get-details'
+import { remove } from './controllers/delete'
 
 export async function GoalRoutes(app: FastifyInstance) {
   app.addHook('onRequest', verifyJWT)
@@ -12,4 +13,5 @@ export async function GoalRoutes(app: FastifyInstance) {
   app.get('/goals', getGoalByUser)
   app.get('/goals/:id', getDetails)
   app.patch('/goals/:id', updateGoal)
+  app.delete('/goals/:id', remove)
 }

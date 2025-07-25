@@ -24,10 +24,14 @@ export async function authenticate(
       password,
     })
     const token = await reply.jwtSign(
-      {},
+      {
+        name: user.name,
+        role: user.role,
+      },
       {
         sign: {
           sub: user.id,
+          expiresIn: '7d',
         },
       },
     )
