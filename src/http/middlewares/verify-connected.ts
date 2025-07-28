@@ -17,7 +17,7 @@ export async function verifyConnected(
   }
 
   const response = await fetch(
-    `http://localhost:8080/instance/connect/${user.instanceName}`,
+    `http://localhost:8080/instance/connectionState/${user.instanceName}`,
     {
       method: 'GET',
       headers: {

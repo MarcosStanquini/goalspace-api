@@ -42,7 +42,6 @@ export class CreateInstanceUseCase {
         `Failed to create instance. Status: ${response.status}. Body: ${errorBody}`,
       )
     }
-
     return {
       instanceName,
     }

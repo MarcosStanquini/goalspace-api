@@ -15,7 +15,7 @@ const _env = envSchema.safeParse(process.env) // Safe Parse nao lança um erro, 
 if (_env.success === false) {
   console.error('Invalid environment variables', _env.error.format())
 
-  throw new Error('Invalid environment variables') // Lança um erro para derrubar a aplicação(nenhum codigo executa depois disso)
+  throw new Error('Invalid environment variables') // Lança um erro para derrubar a aplicação
 }
 
 export const env = _env.data
