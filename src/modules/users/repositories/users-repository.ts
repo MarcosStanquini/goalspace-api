@@ -6,4 +6,5 @@ export interface UsersRepository {
   create(data: Prisma.UserCreateInput): Promise<User>
   getAll(): Promise<User[]>
   updateInstance(id: string, instanceName: string): Promise<boolean>
+  updateOwnerNumber(id: string, ownerNumber: string): Promise<boolean>
 }

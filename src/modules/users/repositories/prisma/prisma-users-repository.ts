@@ -38,4 +38,10 @@ export class PrismaUsersRepository implements UsersRepository {
 
     return true
   }
+
+  async updateOwnerNumber(userId: string, ownerNumber: string) {
+    await prisma.user.update({ where: { id: userId }, data: { ownerNumber } })
+
+    return true
+  }
 }

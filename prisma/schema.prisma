@@ -14,15 +14,10 @@ model User {
   password_hash String
   role          Role    @default(USER)
   instanceName  String?
+  ownerNumber   String?
   Goal          Goal[]
 
   @@map("users")
-}
-
-enum Role {
-  USER
-  ADMIN
-  MODERATOR
 }
 
 model Goal {
@@ -46,4 +41,10 @@ model SubTask {
   goal        Goal   @relation(fields: [goal_id], references: [id])
 
   @@map("subtasks")
+}
+
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
 }
