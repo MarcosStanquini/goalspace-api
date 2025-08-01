@@ -1,5 +1,6 @@
 import { GoalsRepository } from '../repositories/goals-repository'
 import { GoalNotFound } from './errors/goal-not-found'
+import { InvalidDeadline } from './errors/invalid-deadline'
 
 interface UpdateGoalUseCaseRequest {
   user_id: string
@@ -21,6 +22,14 @@ export class UpdateGoalUseCase {
     deadline,
     isCompleted,
   }: UpdateGoalUseCaseRequest) {
+    if (deadline) {
+      const isInPast = deadline.getTime() < Date.now()
+
+      if (isInPast && !isCompleted) {
+        throw new InvalidDeadline()
+      }
+    }
+
     const goal = await this.goalsRepository.update(user_id, id, {
       title,
       description,

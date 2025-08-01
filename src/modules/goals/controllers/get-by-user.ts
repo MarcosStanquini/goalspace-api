@@ -10,10 +10,11 @@ export async function getGoalByUser(
 ) {
   const queryParamsSchema = z.object({
     goal_status: z.enum(['active', 'expired', 'completed']).optional(),
+    title_search: z.string().optional(),
   })
 
   const user_id = (request.user as { sub: string }).sub
-  const { goal_status } = queryParamsSchema.parse(request.query)
+  const { goal_status, title_search } = queryParamsSchema.parse(request.query)
 
   let goals
 
@@ -21,7 +22,7 @@ export async function getGoalByUser(
     const goalsRepository = new PrismaGoalsRepository()
     const getGoalByUser = new GetGoalByUserUseCase(goalsRepository)
 
-    goals = await getGoalByUser.execute({ user_id, goal_status })
+    goals = await getGoalByUser.execute({ user_id, goal_status, title_search })
   } catch (err) {
     if (err instanceof GoalNotFound) {
       return reply.status(404).send({ message: err.message })

@@ -5,6 +5,8 @@ import { connectInstance } from './controllers/connect'
 import { whatsappConnect } from './controllers/handle-whatsapp-connection'
 import { desconnectInstance } from './controllers/desconnect'
 import { verifyConnected } from '@/http/middlewares/verify-connected'
+import { verifyOwnerNumber } from '@/http/middlewares/verify-number-owner'
+import { sendMessage } from './controllers/send-message'
 
 export async function InstanceRoutes(app: FastifyInstance) {
   app.addHook('onRequest', verifyJWT)
@@ -18,5 +20,12 @@ export async function InstanceRoutes(app: FastifyInstance) {
       preHandler: [verifyJWT, verifyConnected],
     },
     desconnectInstance,
+  )
+  app.post(
+    '/message/sendMessage',
+    {
+      preHandler: [verifyJWT, verifyConnected, verifyOwnerNumber],
+    },
+    sendMessage,
   )
 }

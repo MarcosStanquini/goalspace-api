@@ -1,8 +1,12 @@
-import { RawSubtaskInput, SubtaskRepository } from '../subtask-repository'
+import {
+  RawSubTaskInput,
+  SubtaskRepository,
+  UpdateSubTaskInput,
+} from '../subtask-repository'
 import { prisma } from '@/lib/prisma'
 
 export class PrismaSubtaskRepository implements SubtaskRepository {
-  async create(data: RawSubtaskInput) {
+  async create(data: RawSubTaskInput) {
     const subtask = await prisma.subTask.create({
       data: {
         description: data.description,
@@ -41,5 +45,22 @@ export class PrismaSubtaskRepository implements SubtaskRepository {
 
     await prisma.subTask.deleteMany({ where: { goal_id } })
     return true
+  }
+
+  async findById(id: string) {
+    const subtask = await prisma.subTask.findUnique({ where: { id } })
+
+    return subtask
+  }
+
+  async update(id: string, data: UpdateSubTaskInput) {
+    const subtask = await prisma.subTask.update({
+      where: { id },
+      data: {
+        description: data.description,
+        isCompleted: data.isCompleted,
+      },
+    })
+    return subtask
   }
 }

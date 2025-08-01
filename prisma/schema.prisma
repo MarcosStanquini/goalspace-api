@@ -35,10 +35,11 @@ model Goal {
 }
 
 model SubTask {
-  id          String @id @default(uuid())
+  id          String  @id @default(uuid())
   description String
   goal_id     String
-  goal        Goal   @relation(fields: [goal_id], references: [id])
+  isCompleted Boolean @default(false)
+  goal        Goal    @relation(fields: [goal_id], references: [id])
 
   @@map("subtasks")
 }

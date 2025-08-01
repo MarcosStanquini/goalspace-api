@@ -5,13 +5,17 @@ import { calculateStatus } from './utils/calculate-status'
 interface GetGoalByUserRequest {
   user_id: string
   goal_status?: 'active' | 'expired' | 'completed'
+  title_search?: string
 }
 
 export class GetGoalByUserUseCase {
   constructor(private goalsRepository: GoalsRepository) {}
 
-  async execute({ user_id, goal_status }: GetGoalByUserRequest) {
-    const goals = await this.goalsRepository.findManyByUserId(user_id)
+  async execute({ user_id, goal_status, title_search }: GetGoalByUserRequest) {
+    const goals = await this.goalsRepository.findManyByUserId(
+      user_id,
+      title_search,
+    )
 
     if (!goals || goals.length === 0) {
       throw new GoalNotFound()

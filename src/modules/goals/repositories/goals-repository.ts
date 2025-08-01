@@ -16,7 +16,7 @@ export interface goalUpdateInput {
 
 export interface GoalsRepository {
   create(data: RawGoalInput): Promise<Goal>
-  findManyByUserId(user_id: string): Promise<Goal[] | null>
+  findManyByUserId(user_id: string, query?: string): Promise<Goal[] | null>
   update(
     user_id: string,
     id: string,

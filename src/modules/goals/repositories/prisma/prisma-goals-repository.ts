@@ -29,10 +29,16 @@ export class PrismaGoalsRepository implements GoalsRepository {
     })
   }
 
-  async findManyByUserId(user_id: string) {
+  async findManyByUserId(user_id: string, query?: string) {
     const goals = await prisma.goal.findMany({
       where: {
         user_id,
+        title: query
+          ? {
+              contains: query,
+              mode: 'insensitive',
+            }
+          : undefined,
       },
     })
     return goals

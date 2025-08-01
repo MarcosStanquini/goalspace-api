@@ -12,23 +12,29 @@ export async function updateGoal(request: FastifyRequest, reply: FastifyReply) {
   const updateBodySchema = z.object({
     title: z.string().optional(),
     description: z.string().optional(),
-    deadline: z.date().optional(),
+    deadline: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .optional(),
     isCompleted: z.boolean().optional(),
   })
 
   const user_id = (request.user as { sub: string }).sub
   const { id } = paramsSchema.parse(request.params)
-  const { title, description, deadline, isCompleted } = updateBodySchema.parse(
-    request.body,
-  )
+  const {
+    title,
+    description,
+    deadline: deadlineString,
+    isCompleted,
+  } = updateBodySchema.parse(request.body)
 
-  let goal
+  const deadline = deadlineString ? new Date(deadlineString) : undefined
 
   try {
     const goalsRepository = new PrismaGoalsRepository()
     const updateGoal = new UpdateGoalUseCase(goalsRepository)
 
-    goal = await updateGoal.execute({
+    const goal = await updateGoal.execute({
       user_id,
       id,
       title,
@@ -36,11 +42,13 @@ export async function updateGoal(request: FastifyRequest, reply: FastifyReply) {
       deadline,
       isCompleted,
     })
+
+    return reply.status(200).send(goal)
   } catch (err) {
     if (err instanceof GoalNotFound) {
       return reply.status(404).send({ message: err.message })
     }
+
     throw err
   }
-  return reply.status(200).send(goal)
 }
