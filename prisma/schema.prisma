@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  id            String  @id @default(uuid())
-  name          String
-  email         String  @unique
-  password_hash String
-  role          Role    @default(USER)
-  instanceName  String?
-  ownerNumber   String?
-  Goal          Goal[]
+  id                   String                @id @default(uuid())
+  name                 String
+  email                String                @unique
+  password_hash        String
+  role                 Role                  @default(USER)
+  instanceName         String?
+  ownerNumber          String?
+  Goal                 Goal[]
+  NotificationSettings NotificationSettings?
 
   @@map("users")
 }
@@ -42,6 +43,19 @@ model SubTask {
   goal        Goal    @relation(fields: [goal_id], references: [id])
 
   @@map("subtasks")
+}
+
+model NotificationSettings {
+  id               String  @id @default(uuid())
+  remindBefore24h  Boolean @default(false)
+  remindBefore1h   Boolean @default(false)
+  onGoalCompleted  Boolean @default(false)
+  weeklyReport     Boolean @default(false)
+  achievementAlert Boolean @default(false)
+  user_id          String  @unique
+  user             User    @relation(fields: [user_id], references: [id])
+
+  @@map("notification_settings")
 }
 
 enum Role {

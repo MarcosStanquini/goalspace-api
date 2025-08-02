@@ -21,9 +21,10 @@ export class GetDetailsUseCase {
     const subtasks = await this.subtasksRepository.findManyByGoalId(id)
 
     const subtasksWithoutGoalId = subtasks
-      ? subtasks.map(({ id, description }) => ({
+      ? subtasks.map(({ id, description, isCompleted }) => ({
           id,
           description,
+          isCompleted,
         }))
       : []
 
