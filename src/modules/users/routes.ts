@@ -4,6 +4,7 @@ import { getAll } from './controllers/get-all'
 import { verifyAdmin } from '@/http/middlewares/verify-admin'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { update } from './controllers/update'
+import { exportPdf } from './export/controllers/export-pdf'
 
 export async function UserRoutes(app: FastifyInstance) {
   app.post('/users', register)
@@ -21,5 +22,12 @@ export async function UserRoutes(app: FastifyInstance) {
       preHandler: [verifyJWT],
     },
     update,
+  )
+  app.get(
+    '/users/export',
+    {
+      preHandler: [verifyJWT],
+    },
+    exportPdf,
   )
 }
