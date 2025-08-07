@@ -8,4 +8,5 @@ export interface UsersRepository {
   update(id: string, name?: string, email?: string): Promise<User>
   updateInstance(id: string, instanceName: string): Promise<boolean>
   updateOwnerNumber(id: string, ownerNumber: string): Promise<boolean>
+  updatePassword(id: string, password_hash: string): Promise<boolean>
 }

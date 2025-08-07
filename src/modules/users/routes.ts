@@ -5,6 +5,7 @@ import { verifyAdmin } from '@/http/middlewares/verify-admin'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { update } from './controllers/update'
 import { exportPdf } from './export/controllers/export-pdf'
+import { updatePassword } from './controllers/update-password'
 
 export async function UserRoutes(app: FastifyInstance) {
   app.post('/users', register)
@@ -29,5 +30,12 @@ export async function UserRoutes(app: FastifyInstance) {
       preHandler: [verifyJWT],
     },
     exportPdf,
+  )
+  app.patch(
+    '/users/password',
+    {
+      preHandler: [verifyJWT],
+    },
+    updatePassword,
   )
 }
