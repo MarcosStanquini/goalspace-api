@@ -7,7 +7,7 @@ import { AuthenticateRoutes } from './modules/auth/route'
 import fastifyJwt from '@fastify/jwt'
 import { SubTaskRoutes } from './modules/subtasks/route'
 import { InstanceRoutes } from './modules/instance/route'
-import { NotificationSettinRoutes } from './modules/notification/route'
+import { NotificationSettingRoutes } from './modules/notification/route'
 
 export const app = fastify()
 
@@ -20,7 +20,7 @@ app.register(GoalRoutes)
 app.register(AuthenticateRoutes)
 app.register(SubTaskRoutes)
 app.register(InstanceRoutes)
-app.register(NotificationSettinRoutes)
+app.register(NotificationSettingRoutes)
 
 app.setErrorHandler((error, _, reply) => {
   if (error instanceof ZodError) {

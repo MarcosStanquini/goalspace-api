@@ -1,5 +1,6 @@
 import { app } from './app'
 import { env } from './env/index'
+import './jobs/reminder-before-24h.job'
 
 app
   .listen({

@@ -3,19 +3,20 @@ import { UsersRepository } from '@/modules/users/repositories/users-repository'
 
 interface SendMessageUseCaseRequest {
   user_id: string
+  message: string
 }
 
 export class SendMessageUseCase {
   constructor(private usersRepository: UsersRepository) {}
 
-  async execute({ user_id }: SendMessageUseCaseRequest) {
+  async execute({ user_id, message }: SendMessageUseCaseRequest) {
     const user = await this.usersRepository.findById(user_id)
 
     const instanceName = user?.instanceName
     const ownerNumber = user?.ownerNumber
 
     const response = await fetch(
-      `http://localhost:8080/message/send/${instanceName}`,
+      `http://localhost:8080/message/sendText/${instanceName}`,
       {
         method: 'POST',
         headers: {
@@ -25,7 +26,7 @@ export class SendMessageUseCase {
         body: JSON.stringify({
           number: ownerNumber,
           textMessage: {
-            text: 'Teste!',
+            text: message,
           },
         }),
       },

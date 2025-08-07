@@ -2,10 +2,13 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import z from 'zod'
 import { PrismaNotificationRepository } from '../repositories/prisma/prisma-notification-repository'
 import { CreateNotificationSettingsUseCase } from '../use-cases/create'
-import { UpdateNotificationSettingsUseCase } from '../use-cases/update'
+import { UpdateNotificationSettingsUseCase } from '../use-cases/update-settings'
 import { NotificationSettingExists } from '../use-cases/errors/notification-settings-exists'
 
-export async function update(request: FastifyRequest, reply: FastifyReply) {
+export async function updateSettings(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
   const createNotificationSettingsBody = z.object({
     remindBefore24h: z.boolean().optional(),
     remindBefore1h: z.boolean().optional(),
