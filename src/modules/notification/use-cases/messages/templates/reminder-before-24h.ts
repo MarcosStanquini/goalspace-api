@@ -8,7 +8,7 @@ interface GenerateReminderMessageParams {
   goals: Goal[]
 }
 
-export function generateReminderMessageForGoals({
+export function generateReminder24hMessageForGoals({
   userName,
   goals,
 }: GenerateReminderMessageParams): string {

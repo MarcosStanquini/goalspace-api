@@ -15,7 +15,7 @@ model User {
   role                 Role                  @default(USER)
   instanceName         String?
   ownerNumber          String?
-  Goal                 Goal[]
+  Goal                 Goal[]           
   NotificationSettings NotificationSettings?
 
   @@map("users")

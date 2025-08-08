@@ -1,9 +1,9 @@
 import { UsersRepository } from '@/modules/users/repositories/users-repository'
-import { NotificationSettingsRepository } from '../repositories/notification-repository'
+import { NotificationSettingsRepository } from '../../repositories/notification-repository'
 import { UserNotExistsError } from '@/modules/users/use-cases/errors/user-not-found-error'
 import { GoalsRepository } from '@/modules/goals/repositories/goals-repository'
 import { GoalNotFound } from '@/modules/goals/use-cases/errors/goal-not-found'
-import { generateReminderMessageForGoals } from '../templates/reminder-before-24h'
+import { generateReminder24hMessageForGoals } from './templates/reminder-before-24h'
 
 interface Reminder {
   userId: string
@@ -29,7 +29,8 @@ export class ReminderBefore24hUseCase {
       await this.notificationSettingsRepository.findByUserId(userId)
 
     if (!settings?.remindBefore24h) {
-      return
+      console.log('Remind before 24h disabled')
+      return []
     }
 
     const goals = await this.goalsRepository.findManyByUserId(userId)
@@ -49,7 +50,7 @@ export class ReminderBefore24hUseCase {
       return
     }
 
-    const message = generateReminderMessageForGoals({
+    const message = generateReminder24hMessageForGoals({
       userName: user.name,
       goals: upcomingGoals,
     })

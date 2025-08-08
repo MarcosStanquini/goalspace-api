@@ -10,7 +10,11 @@ export async function create(request: FastifyRequest, reply: FastifyReply) {
   const createBodySchema = z.object({
     title: z.string(),
     description: z.string().optional(),
-    deadline: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    deadline: z
+      .string()
+      .regex(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|([+-]\d{2}:\d{2}))?$/,
+      ),
   })
 
   const {

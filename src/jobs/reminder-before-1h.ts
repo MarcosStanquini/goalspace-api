@@ -2,29 +2,28 @@ import cron from 'node-cron'
 import { SendMessageUseCase } from '@/modules/instance/use-cases/send-message'
 import { PrismaUsersRepository } from '@/modules/users/repositories/prisma/prisma-users-repository'
 import { PrismaGoalsRepository } from '@/modules/goals/repositories/prisma/prisma-goals-repository'
-import { ReminderBefore24hUseCase } from '@/modules/notification/use-cases/reminder-before-24h'
+import { ReminderBefore1hUseCase } from '@/modules/notification/use-cases/messages/reminder-before-1h'
 import { PrismaNotificationRepository } from '@/modules/notification/repositories/prisma/prisma-notification-repository'
 
 const usersRepository = new PrismaUsersRepository()
 const goalsRepository = new PrismaGoalsRepository()
 const notificationSettingsRepository = new PrismaNotificationRepository()
 
-const reminderUseCase = new ReminderBefore24hUseCase(
+const reminderUseCase = new ReminderBefore1hUseCase(
   notificationSettingsRepository,
   usersRepository,
   goalsRepository,
 )
 
 const sendMessageUseCase = new SendMessageUseCase(usersRepository)
-
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 * * * *', async () => {
   try {
-    console.log('Running reminder job...')
-
     const allUsers = await usersRepository.getAll()
 
     for (const user of allUsers) {
       try {
+        console.log(`User: ${user.id} - ${user.name}`)
+
         const reminders = await reminderUseCase.execute(user.id)
 
         if (reminders && reminders.length > 0) {
