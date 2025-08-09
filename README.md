@@ -66,7 +66,7 @@ src/
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/goalspace-api.git
+git clone https://github.com/MarcosStanquini/goalspace-api.git
 cd goalspace-api
 ```
 
