@@ -143,14 +143,44 @@ O GoalSpace integra com a **Evolution API** para enviar notificações via Whats
 - 📊 **Relatórios semanais** de progresso
 - 🎉 **Confirmações** de conclusão de metas
 
-### Configuração Evolution API
+### 🔧 Fluxo de Ativação WhatsApp
 
-1. Configure sua instância da Evolution API
-2. Adicione a chave no arquivo `.env`
-3. As notificações serão enviadas automaticamente
+Para ativar as notificações WhatsApp, siga este fluxo:
+
+#### 1. Configure a Global API Key (primeira vez)
+- Acesse: `http://localhost:8080/manager`
+- Configure/obtenha a **Global API Key**
+- Adicione esta chave no arquivo `.env` como `EVOLUTION_API_KEY`
+
+#### 2. Conecte sua instância WhatsApp
+- Faça uma requisição `GET /instance/connect` (com JWT token)
+- Copie o `qrCode` (base64) retornado pela API
+- Converta o base64 em QR Code(apenas copiar o link e colar no navegador)
+- Escaneie o QR Code com seu WhatsApp
+- Sua instância estará conectada e pronta para enviar notificações
+
+#### 3. Configure suas preferências de notificação
+- Faça uma requisição `PATCH /notificationSettings` para personalizar quais notificações deseja receber:
+  - Lembretes de prazo (1h e 24h antes)
+  - Relatórios semanais de progresso
+  - Confirmações de conclusão de metas
+  - Alertas de metas vencidas
+
+```bash
+# Exemplo de configuração
+curl -X PATCH "http://localhost:3333/users/notificationSettings" \
+  -H "Authorization: Bearer seu_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "remindBefore24h": true,
+    "remindBefore1h": true,
+    "onGoalCompleted": true,
+    "weeklyReport": true,
+    "achievementAlert": true
+  }'
+```
 
 ## 📊 Funcionalidades Avançadas
-
 ### Filtros e Busca
 
 ```http
