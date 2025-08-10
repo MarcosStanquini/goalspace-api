@@ -33,6 +33,7 @@ export async function InstanceRoutes(app: FastifyInstance) {
           },
         },
       },
+      preHandler: [verifyOwnerNumber],
     },
     whatsappConnect,
   )
