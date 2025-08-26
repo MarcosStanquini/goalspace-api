@@ -8,7 +8,7 @@ import { InvalidDeadline } from '../use-cases/errors/invalid-deadline'
 
 export async function create(request: FastifyRequest, reply: FastifyReply) {
   const createBodySchema = z.object({
-    title: z.string(),
+    title: z.string().min(1, { message: 'Title is not empty' }),
     description: z.string().optional(),
     deadline: z
       .string()
