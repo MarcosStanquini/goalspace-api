@@ -1,24 +1,17 @@
-import { SubtaskRepository } from '@/modules/subtasks/repositories/subtask-repository'
 import { GoalsRepository } from '../repositories/goals-repository'
-import { GoalNotFound } from './errors/goal-not-found'
+import { findUserGoal } from './utils/find-user-goal'
 
 interface DeleteGoalsUseCaseRequest {
   id: string
+  user_id: string
 }
 
 export class DeleteGoalUseCase {
-  constructor(
-    private goalsRepository: GoalsRepository,
-    private subtaskRepository: SubtaskRepository,
-  ) {}
+  constructor(private goalsRepository: GoalsRepository) {}
 
-  async execute({ id }: DeleteGoalsUseCaseRequest) {
-    const goal = await this.goalsRepository.findById(id)
+  async execute({ id, user_id }: DeleteGoalsUseCaseRequest) {
+    await findUserGoal(this.goalsRepository, id, user_id)
 
-    if (!goal) {
-      throw new GoalNotFound()
-    }
-    await this.subtaskRepository.deleteManyByGoalId(id)
-    await this.goalsRepository.deleteById(id)
+    await this.goalsRepository.delete(id)
   }
 }

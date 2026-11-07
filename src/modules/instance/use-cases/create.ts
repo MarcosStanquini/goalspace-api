@@ -1,6 +1,6 @@
-import { env } from '@/env'
 import { UsersRepository } from '@/modules/users/repositories/users-repository'
 import { UserNotExistsError } from '@/modules/users/use-cases/errors/user-not-found-error'
+import { WhatsappProvider } from '../providers/whatsapp-provider'
 import { InstanceAlreadyExists } from './errors/instance-already-exists'
 
 interface CreateInstanceUseCaseRequest {
@@ -8,7 +8,10 @@ interface CreateInstanceUseCaseRequest {
 }
 
 export class CreateInstanceUseCase {
-  constructor(private usersRepository: UsersRepository) {}
+  constructor(
+    private usersRepository: UsersRepository,
+    private whatsappProvider: WhatsappProvider,
+  ) {}
 
   async execute({ user_id }: CreateInstanceUseCaseRequest) {
     const user = await this.usersRepository.findById(user_id)
@@ -21,29 +24,13 @@ export class CreateInstanceUseCase {
       throw new InstanceAlreadyExists()
     }
 
-    const instanceName = `${user.name}_${user.email}`
-      .replace(/\s+/g, '_')
-      .toLowerCase()
+    // Baseado no id: único, estável e sem caracteres especiais (nome/e-mail podem mudar)
+    const instanceName = `goalspace_${user.id}`
 
+    // Cria primeiro no provedor; só salva no usuário se deu certo
+    await this.whatsappProvider.createInstance(instanceName)
     await this.usersRepository.updateInstance(user_id, instanceName)
 
-    const response = await fetch('http://localhost:8080/instance/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        apikey: env.EVOLUTION_API_KEY,
-      },
-      body: JSON.stringify({ instanceName }),
-    })
-
-    if (!response.ok) {
-      const errorBody = await response.text()
-      throw new Error(
-        `Failed to create instance. Status: ${response.status}. Body: ${errorBody}`,
-      )
-    }
-    return {
-      instanceName,
-    }
+    return { instanceName }
   }
 }

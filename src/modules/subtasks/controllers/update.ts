@@ -1,12 +1,11 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
-import { PrismaSubtaskRepository } from '../repositories/prisma/prisma-subtask-repository'
-import { UpdateSubTaskUseCase } from '../use-cases/update'
+import { makeUpdateSubTaskUseCase } from '../use-cases/factories'
 import { SubTaskNotFound } from '../use-cases/errors/subtasks-not-found'
 
 export async function update(request: FastifyRequest, reply: FastifyReply) {
   const updateBodySchema = z.object({
-    description: z.string().optional(),
+    description: z.string().trim().min(1).optional(),
     isCompleted: z.boolean().optional(),
   })
 
@@ -18,16 +17,15 @@ export async function update(request: FastifyRequest, reply: FastifyReply) {
   const { description, isCompleted } = updateBodySchema.parse(request.body)
 
   try {
-    const subTaskRepository = new PrismaSubtaskRepository()
-    const updateSubTaskUseCase = new UpdateSubTaskUseCase(subTaskRepository)
-
-    const subTask = await updateSubTaskUseCase.execute({
+    const updateSubTaskUseCase = makeUpdateSubTaskUseCase()
+    const subtask = await updateSubTaskUseCase.execute({
       id,
+      user_id: request.user.sub,
       description,
       isCompleted,
     })
 
-    return reply.status(200).send(subTask)
+    return reply.status(200).send(subtask)
   } catch (err) {
     if (err instanceof SubTaskNotFound) {
       return reply.status(404).send({ message: err.message })

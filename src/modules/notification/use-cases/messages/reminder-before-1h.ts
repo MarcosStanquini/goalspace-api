@@ -2,14 +2,11 @@ import { UsersRepository } from '@/modules/users/repositories/users-repository'
 import { NotificationSettingsRepository } from '../../repositories/notification-repository'
 import { UserNotExistsError } from '@/modules/users/use-cases/errors/user-not-found-error'
 import { GoalsRepository } from '@/modules/goals/repositories/goals-repository'
-import { GoalNotFound } from '@/modules/goals/use-cases/errors/goal-not-found'
-
 import { generateReminder1hMessageForGoals } from './templates/reminder-before-1h'
+import { filterUpcomingGoals } from './upcoming-goals'
+import { Reminder } from './types'
 
-interface Reminder {
-  userId: string
-  message: string
-}
+const ONE_HOUR_IN_MS = 60 * 60 * 1000
 
 export class ReminderBefore1hUseCase {
   constructor(
@@ -18,9 +15,8 @@ export class ReminderBefore1hUseCase {
     private goalsRepository: GoalsRepository,
   ) {}
 
-  async execute(userId: string) {
+  async execute(userId: string): Promise<Reminder[]> {
     const user = await this.usersRepository.findById(userId)
-    const reminders: Reminder[] = []
 
     if (!user) {
       throw new UserNotExistsError()
@@ -28,28 +24,16 @@ export class ReminderBefore1hUseCase {
 
     const settings =
       await this.notificationSettingsRepository.findByUserId(userId)
-    console.log(settings)
 
     if (!settings?.remindBefore1h) {
-      console.log('Remind before 24h disabled')
       return []
     }
 
     const goals = await this.goalsRepository.findManyByUserId(userId)
-    if (!goals || goals.length === 0) {
-      throw new GoalNotFound()
-    }
-
-    const now = new Date()
-    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000)
-
-    const upcomingGoals = goals.filter((goal) => {
-      const goalDate = new Date(goal.deadline)
-      return goalDate > now && goalDate <= oneHourLater
-    })
+    const upcomingGoals = filterUpcomingGoals(goals, ONE_HOUR_IN_MS)
 
     if (upcomingGoals.length === 0) {
-      return
+      return []
     }
 
     const message = generateReminder1hMessageForGoals({
@@ -57,7 +41,6 @@ export class ReminderBefore1hUseCase {
       goals: upcomingGoals,
     })
 
-    reminders.push({ userId, message })
-    return reminders
+    return [{ userId, message }]
   }
 }

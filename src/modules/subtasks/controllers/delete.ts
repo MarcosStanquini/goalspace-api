@@ -1,7 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
-import { PrismaSubtaskRepository } from '../repositories/prisma/prisma-subtask-repository'
-import { DeleteSubtaskUseCase } from '../use-cases/delete'
+import { makeDeleteSubtaskUseCase } from '../use-cases/factories'
 import { SubTaskNotFound } from '../use-cases/errors/subtasks-not-found'
 
 export async function remove(request: FastifyRequest, reply: FastifyReply) {
@@ -12,17 +11,14 @@ export async function remove(request: FastifyRequest, reply: FastifyReply) {
   const { id } = deleteParamsSchema.parse(request.params)
 
   try {
-    const prismaSubtaskRepository = new PrismaSubtaskRepository()
-    const deleteSubtaskUseCase = new DeleteSubtaskUseCase(
-      prismaSubtaskRepository,
-    )
+    const deleteSubtaskUseCase = makeDeleteSubtaskUseCase()
+    await deleteSubtaskUseCase.execute({ id, user_id: request.user.sub })
 
-    await deleteSubtaskUseCase.execute({ id })
+    return reply.status(204).send()
   } catch (err) {
     if (err instanceof SubTaskNotFound) {
       return reply.status(404).send({ message: err.message })
     }
     throw err
   }
-  return reply.status(204).send()
 }

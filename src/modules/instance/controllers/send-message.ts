@@ -1,21 +1,24 @@
-import { PrismaUsersRepository } from '@/modules/users/repositories/prisma/prisma-users-repository'
 import { FastifyReply, FastifyRequest } from 'fastify'
-import { SendMessageUseCase } from '../use-cases/send-message'
+import { z } from 'zod'
+import { makeSendMessageUseCase } from '../use-cases/factories'
+import { handleInstanceError } from './handle-instance-error'
 
 export async function sendMessage(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const user_id = (request.user as { sub: string }).sub
+  const sendMessageBodySchema = z.object({
+    message: z.string().trim().min(1),
+  })
+
+  const { message } = sendMessageBodySchema.parse(request.body)
 
   try {
-    const usersRepository = new PrismaUsersRepository()
-    const sendMessageUseCase = new SendMessageUseCase(usersRepository)
+    const sendMessageUseCase = makeSendMessageUseCase()
+    await sendMessageUseCase.execute({ user_id: request.user.sub, message })
 
-    const messageSend = await sendMessageUseCase.execute({ user_id })
-    return reply.status(200).send({ messageSend })
+    return reply.status(204).send()
   } catch (err) {
-    console.log(err)
-    return reply.status(500).send({ message: 'Error to send message ' })
+    return handleInstanceError(err, reply)
   }
 }

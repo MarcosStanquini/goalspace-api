@@ -3,6 +3,8 @@ import { create } from './controllers/create'
 import { remove } from './controllers/delete'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { update } from './controllers/update'
+import { errorResponseSchema, uuidParamsSchema } from '@/http/schemas'
+import { subtaskSchema } from './schemas'
 
 export async function SubTaskRoutes(app: FastifyInstance) {
   app.addHook('onRequest', verifyJWT)
@@ -29,22 +31,36 @@ export async function SubTaskRoutes(app: FastifyInstance) {
           },
         },
         response: {
-          201: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
-          },
-          409: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
-          },
+          201: subtaskSchema,
+          404: errorResponseSchema,
         },
       },
     },
     create,
+  )
+
+  app.patch(
+    '/subtasks/:id',
+    {
+      schema: {
+        description: 'Atualizar uma subtarefa (descrição ou concluída)',
+        tags: ['SubTasks'],
+        security: [{ Bearer: [] }],
+        params: uuidParamsSchema,
+        body: {
+          type: 'object',
+          properties: {
+            description: { type: 'string' },
+            isCompleted: { type: 'boolean' },
+          },
+        },
+        response: {
+          200: subtaskSchema,
+          404: errorResponseSchema,
+        },
+      },
+    },
+    update,
   )
 
   app.delete(
@@ -54,57 +70,16 @@ export async function SubTaskRoutes(app: FastifyInstance) {
         description: 'Excluir uma subtarefa',
         tags: ['SubTasks'],
         security: [{ Bearer: [] }],
-        params: {
-          type: 'object',
-          required: ['id'],
-          properties: {
-            id: { type: 'string', format: 'uuid' },
-          },
-        },
+        params: uuidParamsSchema,
         response: {
-          200: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
+          204: {
+            type: 'null',
+            description: 'Subtarefa excluída com sucesso',
           },
+          404: errorResponseSchema,
         },
       },
     },
     remove,
-  )
-
-  app.patch(
-    '/subtask/:id',
-    {
-      schema: {
-        description: 'Atualizar uma subtarefa',
-        tags: ['SubTasks'],
-        security: [{ Bearer: [] }],
-        params: {
-          type: 'object',
-          required: ['id'],
-          properties: {
-            id: { type: 'string', format: 'uuid' },
-          },
-        },
-        body: {
-          type: 'object',
-          properties: {
-            description: { type: 'string' },
-            isCompleted: { type: 'boolean' },
-          },
-        },
-        response: {
-          200: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
-          },
-        },
-      },
-    },
-    update,
   )
 }

@@ -6,7 +6,11 @@ const envSchema = z.object({
   JWT_SECRET: z.string(),
   NODE_ENV: z.enum(['dev', 'test', 'production']).default('dev'),
   PORT: z.coerce.number().default(3333), // O coerce ele converte para number
+  DATABASE_URL: z.string().url(),
+  EVOLUTION_API_URL: z.string().url().default('http://localhost:8080'),
   EVOLUTION_API_KEY: z.string(),
+  // Lista separada por vírgula com as origens liberadas (ex: http://localhost:5173). "*" libera todas.
+  CORS_ORIGIN: z.string().default('*'),
 })
 
 // Faz a validação:

@@ -1,11 +1,14 @@
 import { FastifyInstance } from 'fastify'
 import { register } from './controllers/register'
 import { getAll } from './controllers/get-all'
+import { getProfile } from './controllers/get-profile'
 import { verifyAdmin } from '@/http/middlewares/verify-admin'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { update } from './controllers/update'
 import { exportPdf } from './export/controllers/export-pdf'
 import { updatePassword } from './controllers/update-password'
+import { errorResponseSchema } from '@/http/schemas'
+import { userProfileSchema } from './schemas'
 
 export async function UserRoutes(app: FastifyInstance) {
   app.post(
@@ -24,18 +27,8 @@ export async function UserRoutes(app: FastifyInstance) {
           },
         },
         response: {
-          201: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
-          },
-          409: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
-          },
+          201: userProfileSchema,
+          409: errorResponseSchema,
         },
       },
     },
@@ -52,21 +45,31 @@ export async function UserRoutes(app: FastifyInstance) {
         response: {
           200: {
             type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                id: { type: 'string' },
-                name: { type: 'string' },
-                email: { type: 'string' },
-                role: { type: 'string' },
-              },
-            },
+            items: userProfileSchema,
           },
+          403: errorResponseSchema,
         },
       },
       preHandler: [verifyJWT, verifyAdmin],
     },
     getAll,
+  )
+
+  app.get(
+    '/users/me',
+    {
+      schema: {
+        description: 'Obter o perfil do usuário autenticado',
+        tags: ['Users'],
+        security: [{ Bearer: [] }],
+        response: {
+          200: userProfileSchema,
+          404: errorResponseSchema,
+        },
+      },
+      preHandler: [verifyJWT],
+    },
+    getProfile,
   )
 
   app.patch(
@@ -84,12 +87,9 @@ export async function UserRoutes(app: FastifyInstance) {
           },
         },
         response: {
-          200: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
-          },
+          200: userProfileSchema,
+          404: errorResponseSchema,
+          409: errorResponseSchema,
         },
       },
       preHandler: [verifyJWT],
@@ -104,11 +104,13 @@ export async function UserRoutes(app: FastifyInstance) {
         description: 'Exportar dados do usuário em PDF',
         tags: ['Users'],
         security: [{ Bearer: [] }],
+        produces: ['application/pdf'],
         response: {
           200: {
             type: 'string',
             format: 'binary',
           },
+          404: errorResponseSchema,
         },
       },
       preHandler: [verifyJWT],
@@ -132,12 +134,12 @@ export async function UserRoutes(app: FastifyInstance) {
           },
         },
         response: {
-          200: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
+          204: {
+            type: 'null',
+            description: 'Senha alterada com sucesso',
           },
+          400: errorResponseSchema,
+          404: errorResponseSchema,
         },
       },
       preHandler: [verifyJWT],

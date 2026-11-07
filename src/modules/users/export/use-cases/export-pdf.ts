@@ -17,27 +17,21 @@ export class ExportPdfUseCase {
   ) {}
 
   async execute({ id }: ExportPdfUseCaseRequest) {
+    const user = await this.usersRepository.findById(id)
+
+    if (!user) {
+      throw new UserNotExistsError()
+    }
+
     const getDetailsUseCase = new GetDetailsByUserUseCase(
       this.goalsRepository,
       this.subtasksRepository,
     )
-
-    const hasUser = await this.usersRepository.findById(id)
-
-    if (!hasUser) {
-      throw new UserNotExistsError()
-    }
-
-    const user = {
-      name: hasUser.name,
-      email: hasUser.email,
-    }
-
     const goals = await getDetailsUseCase.execute({ user_id: id })
 
     const pdfGeneratorService = new PdfGeneratorService()
     const pdf = await pdfGeneratorService.generate({
-      user,
+      user: { name: user.name, email: user.email },
       goals,
     })
 

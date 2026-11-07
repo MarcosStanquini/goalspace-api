@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
-import { UsersRepository } from '../users-repository'
+import { UsersRepository, UserUpdateInput } from '../users-repository'
 
 export class PrismaUsersRepository implements UsersRepository {
   async findById(id: string) {
@@ -33,24 +33,24 @@ export class PrismaUsersRepository implements UsersRepository {
     return users
   }
 
-  async updateInstance(userId: string, instanceName: string) {
+  async updateInstance(userId: string, instanceName: string | null) {
     await prisma.user.update({ where: { id: userId }, data: { instanceName } })
 
     return true
   }
 
-  async updateOwnerNumber(userId: string, ownerNumber: string) {
+  async updateOwnerNumber(userId: string, ownerNumber: string | null) {
     await prisma.user.update({ where: { id: userId }, data: { ownerNumber } })
 
     return true
   }
 
-  async update(id: string, name?: string, email?: string) {
+  async update(id: string, data: UserUpdateInput) {
     const user = await prisma.user.update({
       where: { id },
       data: {
-        name,
-        email,
+        name: data.name,
+        email: data.email,
       },
     })
     return user

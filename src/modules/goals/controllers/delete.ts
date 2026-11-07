@@ -1,8 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import z from 'zod'
-import { PrismaGoalsRepository } from '../repositories/prisma/prisma-goals-repository'
-import { PrismaSubtaskRepository } from '@/modules/subtasks/repositories/prisma/prisma-subtask-repository'
-import { DeleteGoalUseCase } from '../use-cases/delete'
+import { makeDeleteGoalUseCase } from '../use-cases/factories'
 import { GoalNotFound } from '../use-cases/errors/goal-not-found'
 
 export async function remove(request: FastifyRequest, reply: FastifyReply) {
@@ -13,21 +11,14 @@ export async function remove(request: FastifyRequest, reply: FastifyReply) {
   const { id } = deleteParamsSchema.parse(request.params)
 
   try {
-    const goalsRepository = new PrismaGoalsRepository()
-    const subtaskRepository = new PrismaSubtaskRepository()
-    const deleteGoalsUseCase = new DeleteGoalUseCase(
-      goalsRepository,
-      subtaskRepository,
-    )
+    const deleteGoalUseCase = makeDeleteGoalUseCase()
+    await deleteGoalUseCase.execute({ id, user_id: request.user.sub })
 
-    deleteGoalsUseCase.execute({
-      id,
-    })
+    return reply.status(204).send()
   } catch (err) {
     if (err instanceof GoalNotFound) {
       return reply.status(404).send({ message: err.message })
     }
     throw err
   }
-  return reply.status(204).send()
 }

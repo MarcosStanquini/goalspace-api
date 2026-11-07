@@ -12,9 +12,9 @@ export interface UpdateSubTaskInput {
 
 export interface SubtaskRepository {
   create(data: RawSubTaskInput): Promise<SubTask>
-  findManyByGoalId(goal_id: string): Promise<SubTask[] | null>
-  delete(id: string): Promise<boolean | null>
-  deleteManyByGoalId(goal_id: string): Promise<boolean | null>
   findById(id: string): Promise<SubTask | null>
-  update(id: string, data: UpdateSubTaskInput): Promise<SubTask | null>
+  findManyByGoalId(goal_id: string): Promise<SubTask[]>
+  findManyByGoalIds(goal_ids: string[]): Promise<SubTask[]>
+  update(id: string, data: UpdateSubTaskInput): Promise<SubTask>
+  delete(id: string): Promise<void>
 }

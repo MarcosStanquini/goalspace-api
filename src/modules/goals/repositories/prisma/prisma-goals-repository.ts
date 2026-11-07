@@ -1,49 +1,11 @@
 import { prisma } from '@/lib/prisma'
 import {
   GoalsRepository,
-  goalUpdateInput,
+  GoalUpdateInput,
   RawGoalInput,
 } from '../goals-repository'
 
 export class PrismaGoalsRepository implements GoalsRepository {
-  async update(user_id: string, id: string, data: goalUpdateInput) {
-    const goal = await prisma.goal.findFirst({
-      where: {
-        user_id,
-        id,
-      },
-    })
-
-    if (!goal) {
-      return null
-    }
-
-    return await prisma.goal.update({
-      where: { id },
-      data: {
-        title: data.title,
-        description: data.description,
-        isCompleted: data.isCompleted,
-        deadline: data.deadline,
-      },
-    })
-  }
-
-  async findManyByUserId(user_id: string, query?: string) {
-    const goals = await prisma.goal.findMany({
-      where: {
-        user_id,
-        title: query
-          ? {
-              contains: query,
-              mode: 'insensitive',
-            }
-          : undefined,
-      },
-    })
-    return goals
-  }
-
   async create(data: RawGoalInput) {
     const goal = await prisma.goal.create({
       data: {
@@ -58,6 +20,22 @@ export class PrismaGoalsRepository implements GoalsRepository {
     return goal
   }
 
+  async findManyByUserId(user_id: string, query?: string) {
+    const goals = await prisma.goal.findMany({
+      where: {
+        user_id,
+        title: query
+          ? {
+              contains: query,
+              mode: 'insensitive',
+            }
+          : undefined,
+      },
+      orderBy: { deadline: 'asc' },
+    })
+    return goals
+  }
+
   async findById(id: string) {
     const goal = await prisma.goal.findUnique({
       where: {
@@ -67,18 +45,23 @@ export class PrismaGoalsRepository implements GoalsRepository {
     return goal
   }
 
-  async deleteById(id: string) {
-    const goal = await prisma.goal.findUnique({
+  async update(id: string, data: GoalUpdateInput) {
+    return await prisma.goal.update({
       where: { id },
+      data: {
+        title: data.title,
+        description: data.description,
+        isCompleted: data.isCompleted,
+        deadline: data.deadline,
+      },
     })
+  }
 
-    if (!goal) {
-      return null
-    }
-
-    await prisma.goal.delete({
-      where: { id },
-    })
-    return true
+  async delete(id: string) {
+    // A FK de subtasks é RESTRICT, então as subtarefas precisam sair antes (na mesma transação)
+    await prisma.$transaction([
+      prisma.subTask.deleteMany({ where: { goal_id: id } }),
+      prisma.goal.delete({ where: { id } }),
+    ])
   }
 }

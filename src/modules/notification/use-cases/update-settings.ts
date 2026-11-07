@@ -1,5 +1,5 @@
 import { NotificationSettingsRepository } from '../repositories/notification-repository'
-import { CreateNotificationSettingsUseCase } from './create'
+import { toNotificationSettingsResponse } from './utils/to-notification-settings-response'
 
 interface UpdateNotificationSettingsUseCaseRequest {
   user_id: string
@@ -13,42 +13,15 @@ interface UpdateNotificationSettingsUseCaseRequest {
 export class UpdateNotificationSettingsUseCase {
   constructor(
     private notificationSettingsRepository: NotificationSettingsRepository,
-    private createNotificationSettingsUseCase: CreateNotificationSettingsUseCase,
   ) {}
 
   async execute({
     user_id,
-    remindBefore24h,
-    remindBefore1h,
-    onGoalCompleted,
-    weeklyReport,
-    achievementAlert,
+    ...data
   }: UpdateNotificationSettingsUseCaseRequest) {
-    const hasNotificationSettings =
-      await this.notificationSettingsRepository.findByUserId(user_id)
+    const notificationSettings =
+      await this.notificationSettingsRepository.upsert(user_id, data)
 
-    if (!hasNotificationSettings) {
-      const notificationSettings =
-        await this.createNotificationSettingsUseCase.execute({
-          user_id,
-          remindBefore24h,
-          remindBefore1h,
-          onGoalCompleted,
-          weeklyReport,
-          achievementAlert,
-        })
-
-      return notificationSettings
-    } else {
-      const notificationSettings =
-        await this.notificationSettingsRepository.update(user_id, {
-          remindBefore24h,
-          remindBefore1h,
-          onGoalCompleted,
-          weeklyReport,
-          achievementAlert,
-        })
-      return notificationSettings
-    }
+    return toNotificationSettingsResponse(notificationSettings)
   }
 }

@@ -1,8 +1,9 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import z from 'zod'
-import { PrismaGoalsRepository } from '../repositories/prisma/prisma-goals-repository'
-import { UpdateGoalUseCase } from '../use-cases/update'
+import { makeUpdateGoalUseCase } from '../use-cases/factories'
 import { GoalNotFound } from '../use-cases/errors/goal-not-found'
+import { InvalidDeadline } from '../use-cases/errors/invalid-deadline'
+import { deadlineZodSchema } from '../schemas'
 
 export async function updateGoal(request: FastifyRequest, reply: FastifyReply) {
   const paramsSchema = z.object({
@@ -10,32 +11,21 @@ export async function updateGoal(request: FastifyRequest, reply: FastifyReply) {
   })
 
   const updateBodySchema = z.object({
-    title: z.string().optional(),
+    title: z.string().trim().min(1).optional(),
     description: z.string().optional(),
-    deadline: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/)
-      .optional(),
+    deadline: deadlineZodSchema.optional(),
     isCompleted: z.boolean().optional(),
   })
 
-  const user_id = (request.user as { sub: string }).sub
   const { id } = paramsSchema.parse(request.params)
-  const {
-    title,
-    description,
-    deadline: deadlineString,
-    isCompleted,
-  } = updateBodySchema.parse(request.body)
-
-  const deadline = deadlineString ? new Date(deadlineString) : undefined
+  const { title, description, deadline, isCompleted } = updateBodySchema.parse(
+    request.body,
+  )
 
   try {
-    const goalsRepository = new PrismaGoalsRepository()
-    const updateGoal = new UpdateGoalUseCase(goalsRepository)
-
-    const goal = await updateGoal.execute({
-      user_id,
+    const updateGoalUseCase = makeUpdateGoalUseCase()
+    const goal = await updateGoalUseCase.execute({
+      user_id: request.user.sub,
       id,
       title,
       description,
@@ -48,7 +38,9 @@ export async function updateGoal(request: FastifyRequest, reply: FastifyReply) {
     if (err instanceof GoalNotFound) {
       return reply.status(404).send({ message: err.message })
     }
-
+    if (err instanceof InvalidDeadline) {
+      return reply.status(400).send({ message: err.message })
+    }
     throw err
   }
 }

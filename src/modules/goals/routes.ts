@@ -4,7 +4,15 @@ import { getGoalByUser } from './controllers/get-by-user'
 import { updateGoal } from './controllers/update'
 import { verifyJWT } from '@/http/middlewares/verify-jwt'
 import { getDetails } from './controllers/get-details'
+import { getSummary } from './controllers/get-summary'
 import { remove } from './controllers/delete'
+import { errorResponseSchema, uuidParamsSchema } from '@/http/schemas'
+import {
+  deadlineBodySchema,
+  goalDetailsSchema,
+  goalSchema,
+  goalsSummarySchema,
+} from './schemas'
 
 export async function GoalRoutes(app: FastifyInstance) {
   app.addHook('onRequest', verifyJWT)
@@ -22,27 +30,13 @@ export async function GoalRoutes(app: FastifyInstance) {
           properties: {
             title: { type: 'string' },
             description: { type: 'string' },
-            deadline: {
-              type: 'string',
-              pattern:
-                '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{3})?(Z|([+-]\\d{2}:\\d{2}))?$',
-              description: 'Data e hora no formato ISO 8601',
-            },
+            deadline: deadlineBodySchema,
           },
         },
         response: {
-          201: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
-          },
-          409: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
-          },
+          201: goalSchema,
+          400: errorResponseSchema,
+          404: errorResponseSchema,
         },
       },
     },
@@ -53,7 +47,7 @@ export async function GoalRoutes(app: FastifyInstance) {
     '/goals',
     {
       schema: {
-        description: 'Listar metas do usuário',
+        description: 'Listar metas do usuário (ordenadas pelo prazo)',
         tags: ['Goals'],
         security: [{ Bearer: [] }],
         querystring: {
@@ -73,30 +67,27 @@ export async function GoalRoutes(app: FastifyInstance) {
         response: {
           200: {
             type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                id: { type: 'string' },
-                title: { type: 'string' },
-                description: { type: 'string' },
-                deadline: { type: 'string', format: 'date-time' },
-                status: { type: 'string' },
-                isCompleted: { type: 'boolean' },
-                createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' },
-              },
-            },
-          },
-          404: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
+            items: goalSchema,
           },
         },
       },
     },
     getGoalByUser,
+  )
+
+  app.get(
+    '/goals/summary',
+    {
+      schema: {
+        description: 'Dashboard resumido do progresso do usuário',
+        tags: ['Goals'],
+        security: [{ Bearer: [] }],
+        response: {
+          200: goalsSummarySchema,
+        },
+      },
+    },
+    getSummary,
   )
 
   app.get(
@@ -106,45 +97,10 @@ export async function GoalRoutes(app: FastifyInstance) {
         description: 'Obter detalhes de uma meta específica',
         tags: ['Goals'],
         security: [{ Bearer: [] }],
-        params: {
-          type: 'object',
-          required: ['id'],
-          properties: {
-            id: { type: 'string', format: 'uuid' },
-          },
-        },
+        params: uuidParamsSchema,
         response: {
-          200: {
-            type: 'object',
-            properties: {
-              id: { type: 'string' },
-              title: { type: 'string' },
-              description: { type: 'string' },
-              deadline: { type: 'string', format: 'date-time' },
-              status: { type: 'string' },
-              isCompleted: { type: 'boolean' },
-              createdAt: { type: 'string', format: 'date-time' },
-              updatedAt: { type: 'string', format: 'date-time' },
-              subtasks: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'string' },
-                    description: { type: 'string' },
-                    isCompleted: { type: 'boolean' },
-                    createdAt: { type: 'string', format: 'date-time' },
-                  },
-                },
-              },
-            },
-          },
-          404: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
-          },
+          200: goalDetailsSchema,
+          404: errorResponseSchema,
         },
       },
     },
@@ -158,46 +114,20 @@ export async function GoalRoutes(app: FastifyInstance) {
         description: 'Atualizar uma meta',
         tags: ['Goals'],
         security: [{ Bearer: [] }],
-        params: {
-          type: 'object',
-          required: ['id'],
-          properties: {
-            id: { type: 'string', format: 'uuid' },
-          },
-        },
+        params: uuidParamsSchema,
         body: {
           type: 'object',
           properties: {
             title: { type: 'string' },
             description: { type: 'string' },
-            deadline: {
-              type: 'string',
-              pattern: '^\\d{4}-\\d{2}-\\d{2}$',
-              description: 'Data no formato YYYY-MM-DD',
-            },
+            deadline: deadlineBodySchema,
             isCompleted: { type: 'boolean' },
           },
         },
         response: {
-          200: {
-            type: 'object',
-            properties: {
-              id: { type: 'string' },
-              title: { type: 'string' },
-              description: { type: 'string' },
-              deadline: { type: 'string', format: 'date-time' },
-              status: { type: 'string' },
-              isCompleted: { type: 'boolean' },
-              createdAt: { type: 'string', format: 'date-time' },
-              updatedAt: { type: 'string', format: 'date-time' },
-            },
-          },
-          404: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
-          },
+          200: goalSchema,
+          400: errorResponseSchema,
+          404: errorResponseSchema,
         },
       },
     },
@@ -211,24 +141,13 @@ export async function GoalRoutes(app: FastifyInstance) {
         description: 'Excluir uma meta e suas subtarefas',
         tags: ['Goals'],
         security: [{ Bearer: [] }],
-        params: {
-          type: 'object',
-          required: ['id'],
-          properties: {
-            id: { type: 'string', format: 'uuid' },
-          },
-        },
+        params: uuidParamsSchema,
         response: {
           204: {
             type: 'null',
             description: 'Meta excluída com sucesso',
           },
-          404: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
-          },
+          404: errorResponseSchema,
         },
       },
     },

@@ -27,10 +27,14 @@ export class PdfGeneratorService {
     const doc = new PDFDocument({ margin: 50 })
     const buffers: Buffer[] = []
 
-    doc.font('Helvetica')
+    // Registra os listeners antes de escrever para não perder o evento 'end'
+    const pdfBuffer = new Promise<Buffer>((resolve, reject) => {
+      doc.on('data', (chunk) => buffers.push(chunk))
+      doc.on('end', () => resolve(Buffer.concat(buffers)))
+      doc.on('error', reject)
+    })
 
-    doc.on('data', (chunk) => buffers.push(chunk))
-    doc.on('end', () => {})
+    doc.font('Helvetica')
 
     doc
       .fontSize(22)
@@ -54,6 +58,10 @@ export class PdfGeneratorService {
 
     doc.fontSize(16).fillColor('#117A65').text('METAS:', { underline: true })
     doc.moveDown(0.5)
+
+    if (data.goals.length === 0) {
+      doc.fontSize(11).fillColor('black').text('Nenhuma meta cadastrada.')
+    }
 
     data.goals.forEach((goal, idx) => {
       doc
@@ -117,11 +125,6 @@ export class PdfGeneratorService {
 
     doc.end()
 
-    return new Promise<Buffer>((resolve) => {
-      doc.on('end', () => {
-        const pdfBuffer = Buffer.concat(buffers)
-        resolve(pdfBuffer)
-      })
-    })
+    return pdfBuffer
   }
 }

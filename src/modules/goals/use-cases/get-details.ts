@@ -1,9 +1,12 @@
 import { SubtaskRepository } from '@/modules/subtasks/repositories/subtask-repository'
+import { toSubtaskResponse } from '@/modules/subtasks/use-cases/utils/to-subtask-response'
 import { GoalsRepository } from '../repositories/goals-repository'
-import { GoalNotFound } from './errors/goal-not-found'
+import { findUserGoal } from './utils/find-user-goal'
+import { toGoalResponse } from './utils/to-goal-response'
 
 interface GetDetailsUseCaseRequest {
   id: string
+  user_id: string
 }
 
 export class GetDetailsUseCase {
@@ -12,30 +15,13 @@ export class GetDetailsUseCase {
     private subtasksRepository: SubtaskRepository,
   ) {}
 
-  async execute({ id }: GetDetailsUseCaseRequest) {
-    const goal = await this.goalsRepository.findById(id)
-
-    if (!goal) {
-      throw new GoalNotFound()
-    }
+  async execute({ id, user_id }: GetDetailsUseCaseRequest) {
+    const goal = await findUserGoal(this.goalsRepository, id, user_id)
     const subtasks = await this.subtasksRepository.findManyByGoalId(id)
 
-    const subtasksWithoutGoalId = subtasks
-      ? subtasks.map(({ id, description, isCompleted }) => ({
-          id,
-          description,
-          isCompleted,
-        }))
-      : []
-
-    const goalDetails = {
-      id: goal.id,
-      title: goal.title,
-      description: goal.description,
-      deadline: goal.deadline,
-      created_at: goal.created_at,
-      subtasks: subtasksWithoutGoalId,
+    return {
+      ...toGoalResponse(goal),
+      subtasks: subtasks.map(toSubtaskResponse),
     }
-    return goalDetails
   }
 }

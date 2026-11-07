@@ -1,14 +1,14 @@
 import { Goal } from '@prisma/client'
 
-export function calculateStatus(
-  goal: Goal,
-): 'active' | 'completed' | 'expired' {
-  const now = new Date()
+export type GoalStatus = 'active' | 'completed' | 'expired'
 
+export function calculateStatus(
+  goal: Pick<Goal, 'isCompleted' | 'deadline'>,
+): GoalStatus {
   if (goal.isCompleted) {
     return 'completed'
   }
-  if (goal.deadline.getTime() < now.getTime()) {
+  if (goal.deadline.getTime() < Date.now()) {
     return 'expired'
   }
   return 'active'

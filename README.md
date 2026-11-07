@@ -44,15 +44,34 @@ src/
 ├── app.ts                 # Configuração principal do Fastify
 ├── server.ts              # Inicialização do servidor
 ├── env/                   # Validação de variáveis de ambiente
+├── @types/                # Tipagem do payload do JWT (request.user)
 ├── http/
-│   └── middlewares/       # Middlewares de autenticação
+│   ├── middlewares/       # Middlewares de autenticação
+│   └── schemas.ts         # Schemas compartilhados (erros, params)
 ├── jobs/                  # Jobs de notificação automatizada
 ├── lib/                   # Utilitários e configurações
 └── modules/
     ├── auth/              # Autenticação e autorização
     ├── goals/             # Gestão de metas
     ├── subtasks/          # Gestão de subtarefas
+    ├── instance/          # Conexão WhatsApp (Evolution API)
+    ├── notification/      # Configurações e mensagens de notificação
     └── users/             # Gestão de usuários
+```
+
+Cada módulo segue a mesma organização:
+
+```
+modules/<modulo>/
+├── route.ts / routes.ts   # Rotas + schemas do Swagger
+├── schemas.ts             # Formato das respostas (o Fastify remove campos não declarados!)
+├── controllers/           # Valida a request (Zod) e mapeia erros -> status HTTP
+├── use-cases/             # Regras de negócio (não conhecem Fastify nem Prisma)
+│   ├── errors/
+│   ├── factories/         # Monta o use case com as implementações concretas
+│   └── *.spec.ts          # Testes unitários com repositórios em memória
+├── repositories/          # Interface + prisma/ + in-memory/
+└── providers/             # (instance) Interface do WhatsApp + evolution/ + in-memory/
 ```
 
 ## ⚙️ Instalação e Configuração
@@ -91,7 +110,9 @@ POSTGRESQL_USER=docker
 POSTGRESQL_PASSWORD=docker
 POSTGRESQL_DATABASE=apimetaflow
 DATABASE_URL=postgresql://docker:docker@localhost:5432/apimetaflow?schema=public
+EVOLUTION_API_URL=http://localhost:8080
 EVOLUTION_API_KEY=sua_chave_evolution_api
+CORS_ORIGIN=http://localhost:5173
 PORT=3333
 ```
 
@@ -153,11 +174,12 @@ Para ativar as notificações WhatsApp, siga este fluxo:
 - Adicione esta chave no arquivo `.env` como `EVOLUTION_API_KEY`
 
 #### 2. Conecte sua instância WhatsApp
-- Faça uma requisição `GET /instance/connect` (com JWT token)
-- Copie o `qrCode` (base64) retornado pela API
-- Converta o base64 em QR Code(apenas copiar o link e colar no navegador)
+- Faça uma requisição `POST /instance/connect` (com JWT token) — a instância é criada automaticamente na primeira vez
+- O campo `qrCode` vem como data URL base64 (pode ser usado direto em `<img src>`); vem `null` se já estiver conectado
 - Escaneie o QR Code com seu WhatsApp
-- Sua instância estará conectada e pronta para enviar notificações
+- Faça polling em `GET /instance/status` até `connected: true` — nesse momento o número é salvo para as notificações
+- Opcional: `POST /message/sendMessage` com `{ "message": "teste" }` envia uma mensagem para o seu próprio WhatsApp
+- `DELETE /instance/logout` desconecta
 
 #### 3. Configure suas preferências de notificação
 - Faça uma requisição `PATCH /notificationSettings` para personalizar quais notificações deseja receber:
@@ -168,7 +190,7 @@ Para ativar as notificações WhatsApp, siga este fluxo:
 
 ```bash
 # Exemplo de configuração
-curl -X PATCH "http://localhost:3333/users/notificationSettings" \
+curl -X PATCH "http://localhost:3333/notificationSettings" \
   -H "Authorization: Bearer seu_jwt_token" \
   -H "Content-Type: application/json" \
   -d '{
@@ -179,6 +201,41 @@ curl -X PATCH "http://localhost:3333/users/notificationSettings" \
     "achievementAlert": true
   }'
 ```
+
+> As configurações atuais podem ser lidas com `GET /notificationSettings` (tudo `false` se nunca foram salvas).
+> Hoje os jobs usam `remindBefore24h`, `remindBefore1h` e `achievementAlert`; `onGoalCompleted` e `weeklyReport` são salvos mas ainda não disparam mensagens.
+
+## 🗺️ Rotas
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| POST | `/users` | Cadastro (retorna o perfil) |
+| POST | `/sessions` | Login (retorna `{ token }`) |
+| GET | `/users/me` | Perfil do usuário logado |
+| PATCH | `/users` | Atualiza nome/e-mail (409 se e-mail já existe) |
+| PATCH | `/users/password` | Troca a senha (204) |
+| GET | `/users/export` | Relatório PDF |
+| GET | `/users` | Lista usuários (admin) |
+| POST | `/goals` | Cria meta (retorna a meta criada) |
+| GET | `/goals` | Lista metas (`goal_status`, `title_search`) — `[]` quando não há metas |
+| GET | `/goals/summary` | Dashboard: contagem por status, subtarefas e % de conclusão |
+| GET | `/goals/:id` | Detalhes da meta com subtarefas |
+| PATCH | `/goals/:id` | Atualiza meta (título, descrição, prazo, concluída) |
+| DELETE | `/goals/:id` | Exclui meta e subtarefas (204) |
+| POST | `/goals/:goal_id/subtasks` | Cria subtarefa |
+| PATCH | `/subtasks/:id` | Atualiza subtarefa (descrição / concluída) |
+| DELETE | `/subtasks/:id` | Exclui subtarefa (204) |
+| GET / PATCH | `/notificationSettings` | Lê / salva preferências de notificação |
+| POST | `/instance/connect` | Gera o QR Code do WhatsApp |
+| GET | `/instance/status` | Estado da conexão WhatsApp |
+| DELETE | `/instance/logout` | Desconecta o WhatsApp |
+| POST | `/message/sendMessage` | Mensagem de teste para o próprio WhatsApp |
+
+**Convenções para o front:**
+- Datas (`deadline`) em ISO 8601 **com fuso**: `2025-12-31T23:59:00-03:00` ou `...Z`
+- Erros sempre no formato `{ "message": string }` (validação: `{ message, issues }`, status 400)
+- Recursos de outro usuário respondem 404
+- CORS liberado para as origens de `CORS_ORIGIN`
 
 ## 📊 Funcionalidades Avançadas
 ### Filtros e Busca
@@ -207,8 +264,17 @@ GET /users/export
 # Desenvolvimento com hot reload
 npm run dev
 
+# Testes (unitários + e2e com repositórios em memória, sem precisar de banco)
+npm test
+
+# Checagem de tipos
+npm run typecheck
+
 # Linting
 npm run lint
+
+# Build de produção
+npm run build && npm start
 ```
 
 ### Estrutura de Banco
@@ -231,7 +297,8 @@ O projeto utiliza Prisma ORM com PostgreSQL. Principais entidades:
 
 ### 🚀 Próximas Versões
 
-- [ ] Dashboard com métricas de produtividade
+- [ ] Paginação na listagem de metas
+- [ ] Disparo das notificações `onGoalCompleted` e `weeklyReport`
 - [ ] Sistema de categorias/tags para metas
 - [ ] Gamificação (pontos, badges, níveis)
 - [ ] Metas colaborativas

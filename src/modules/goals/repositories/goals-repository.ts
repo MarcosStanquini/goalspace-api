@@ -7,7 +7,7 @@ export interface RawGoalInput {
   user_id: string
 }
 
-export interface goalUpdateInput {
+export interface GoalUpdateInput {
   title?: string
   description?: string
   deadline?: Date
@@ -16,12 +16,9 @@ export interface goalUpdateInput {
 
 export interface GoalsRepository {
   create(data: RawGoalInput): Promise<Goal>
-  findManyByUserId(user_id: string, query?: string): Promise<Goal[] | null>
-  update(
-    user_id: string,
-    id: string,
-    data: goalUpdateInput,
-  ): Promise<Goal | null>
+  findManyByUserId(user_id: string, query?: string): Promise<Goal[]>
   findById(id: string): Promise<Goal | null>
-  deleteById(id: string): Promise<boolean | null>
+  update(id: string, data: GoalUpdateInput): Promise<Goal>
+  // Remove a meta junto com as suas subtarefas
+  delete(id: string): Promise<void>
 }

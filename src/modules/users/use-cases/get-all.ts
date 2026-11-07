@@ -1,5 +1,5 @@
 import { UsersRepository } from '../repositories/users-repository'
-import { UserNotExistsError } from './errors/user-not-found-error'
+import { toUserProfile } from './utils/to-user-profile'
 
 export class GetAllUseCase {
   constructor(private usersRepository: UsersRepository) {}
@@ -7,18 +7,6 @@ export class GetAllUseCase {
   async execute() {
     const users = await this.usersRepository.getAll()
 
-    if (!users || users.length === 0) {
-      throw new UserNotExistsError()
-    }
-    const usersWithoutPassword = users
-      ? users.map(({ name, email, role, instanceName }) => ({
-          name,
-          email,
-          role,
-          instanceName,
-        }))
-      : []
-
-    return usersWithoutPassword
+    return users.map(toUserProfile)
   }
 }

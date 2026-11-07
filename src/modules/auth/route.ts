@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify'
+import { errorResponseSchema } from '@/http/schemas'
 import { authenticate } from './controllers/authenticate'
 
 export async function AuthenticateRoutes(app: FastifyInstance) {
@@ -23,12 +24,7 @@ export async function AuthenticateRoutes(app: FastifyInstance) {
               token: { type: 'string' },
             },
           },
-          401: {
-            type: 'object',
-            properties: {
-              message: { type: 'string' },
-            },
-          },
+          401: errorResponseSchema,
         },
       },
     },

@@ -1,8 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import z from 'zod'
-import { PrismaGoalsRepository } from '../repositories/prisma/prisma-goals-repository'
-import { GetGoalByUserUseCase } from '../use-cases/get-by-user'
-import { GoalNotFound } from '../use-cases/errors/goal-not-found'
+import { makeGetGoalByUserUseCase } from '../use-cases/factories'
 
 export async function getGoalByUser(
   request: FastifyRequest,
@@ -13,22 +11,14 @@ export async function getGoalByUser(
     title_search: z.string().optional(),
   })
 
-  const user_id = (request.user as { sub: string }).sub
   const { goal_status, title_search } = queryParamsSchema.parse(request.query)
 
-  let goals
+  const getGoalByUserUseCase = makeGetGoalByUserUseCase()
+  const goals = await getGoalByUserUseCase.execute({
+    user_id: request.user.sub,
+    goal_status,
+    title_search,
+  })
 
-  try {
-    const goalsRepository = new PrismaGoalsRepository()
-    const getGoalByUser = new GetGoalByUserUseCase(goalsRepository)
-
-    goals = await getGoalByUser.execute({ user_id, goal_status, title_search })
-  } catch (err) {
-    if (err instanceof GoalNotFound) {
-      return reply.status(404).send({ message: err.message })
-    }
-
-    throw err
-  }
   return reply.status(200).send(goals)
 }

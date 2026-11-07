@@ -16,6 +16,12 @@ export class PrismaSubtaskRepository implements SubtaskRepository {
     return subtask
   }
 
+  async findById(id: string) {
+    const subtask = await prisma.subTask.findUnique({ where: { id } })
+
+    return subtask
+  }
+
   async findManyByGoalId(goal_id: string) {
     const subtasks = await prisma.subTask.findMany({
       where: {
@@ -25,32 +31,17 @@ export class PrismaSubtaskRepository implements SubtaskRepository {
     return subtasks
   }
 
-  async delete(id: string) {
-    const subtask = await prisma.subTask.findUnique({ where: { id } })
-
-    if (!subtask) {
-      return null
+  async findManyByGoalIds(goal_ids: string[]) {
+    if (goal_ids.length === 0) {
+      return []
     }
 
-    await prisma.subTask.delete({ where: { id } })
-    return true
-  }
-
-  async deleteManyByGoalId(goal_id: string) {
-    const subtasks = await prisma.subTask.findMany({ where: { goal_id } })
-
-    if (!subtasks) {
-      return null
-    }
-
-    await prisma.subTask.deleteMany({ where: { goal_id } })
-    return true
-  }
-
-  async findById(id: string) {
-    const subtask = await prisma.subTask.findUnique({ where: { id } })
-
-    return subtask
+    const subtasks = await prisma.subTask.findMany({
+      where: {
+        goal_id: { in: goal_ids },
+      },
+    })
+    return subtasks
   }
 
   async update(id: string, data: UpdateSubTaskInput) {
@@ -62,5 +53,9 @@ export class PrismaSubtaskRepository implements SubtaskRepository {
       },
     })
     return subtask
+  }
+
+  async delete(id: string) {
+    await prisma.subTask.delete({ where: { id } })
   }
 }
