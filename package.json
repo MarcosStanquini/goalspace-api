@@ -1,43 +1,25 @@
 {
-  "name": "goalspace-api",
-  "version": "1.0.0",
-  "description": "API RESTful para gerenciamento de metas com notificações via WhatsApp",
-  "main": "build/server.js",
+  "name": "goalspace",
+  "private": true,
+  "license": "MIT",
+  "workspaces": [
+    "apps/*"
+  ],
+  "packageManager": "npm@10.9.2",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "build": "tsup src/server.ts --out-dir build",
-    "start": "node build/server.js",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "eslint . --ext .ts,.tsx --fix"
+    "dev": "turbo run dev",
+    "dev:api": "npm run dev -w @goalspace/api",
+    "dev:web": "npm run dev -w @goalspace/web",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "infra:up": "docker compose --env-file apps/api/.env up -d",
+    "infra:down": "docker compose --env-file apps/api/.env down",
+    "db:migrate": "npm run db:migrate -w @goalspace/api",
+    "db:seed": "npm run db:seed -w @goalspace/api"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
-    "@rocketseat/eslint-config": "2.2.2",
-    "@types/node": "24.0.12",
-    "@types/pdfkit": "0.17.2",
-    "eslint": "8.57.1",
-    "tsup": "8.5.0",
-    "tsx": "4.20.3",
-    "typescript": "5.8.3",
-    "vite-tsconfig-paths": "5.1.4",
-    "vitest": "3.2.4"
-  },
-  "dependencies": {
-    "@fastify/cors": "11.1.0",
-    "@fastify/jwt": "9.1.0",
-    "@fastify/swagger": "9.5.1",
-    "@fastify/swagger-ui": "5.2.3",
-    "@prisma/client": "6.11.1",
-    "bcryptjs": "3.0.2",
-    "dotenv": "17.2.0",
-    "fastify": "5.4.0",
-    "node-cron": "4.2.1",
-    "pdfkit": "0.17.1",
-    "prisma": "6.11.1",
-    "zod": "3.25.76"
+    "turbo": "2.11.10"
   }
 }

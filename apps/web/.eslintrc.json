@@ -1,0 +1,35 @@
+{
+  "extends": [
+    "@rocketseat/eslint-config/react"
+  ],
+  "ignorePatterns": [
+    "dist",
+    "node_modules",
+    "src/routeTree.gen.ts"
+  ],
+  "rules": {
+    "camelcase": "off",
+    "prettier/prettier": [
+      "error",
+      {
+        "printWidth": 80,
+        "tabWidth": 2,
+        "singleQuote": true,
+        "trailingComma": "all",
+        "arrowParens": "always",
+        "semi": false,
+        "endOfLine": "auto"
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/features/goals/components/solar-system/**"
+      ],
+      "rules": {
+        "react/no-unknown-property": "off"
+      }
+    }
+  ]
+}

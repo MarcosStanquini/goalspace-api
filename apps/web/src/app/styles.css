@@ -1,0 +1,234 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@fontsource-variable/schibsted-grotesk';
+@import '@fontsource-variable/geist-mono';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Direção visual: "carta celeste". Papel frio e tinta azul-noite, com linhas
+ * finas e números em mono, como uma carta astronômica impressa.
+ * O cobalto é a única cor de marca; as demais carregam significado:
+ * coral = vencida/urgente, âmbar = conquistada.
+ */
+:root {
+  --radius: 0.625rem;
+
+  --background: oklch(0.982 0.004 260);
+  --foreground: oklch(0.22 0.04 268);
+  --card: oklch(0.998 0.001 260);
+  --card-foreground: oklch(0.22 0.04 268);
+  --popover: oklch(0.998 0.001 260);
+  --popover-foreground: oklch(0.22 0.04 268);
+  --primary: oklch(0.47 0.2 268);
+  --primary-foreground: oklch(0.985 0.005 268);
+  --secondary: oklch(0.95 0.008 262);
+  --secondary-foreground: oklch(0.28 0.04 268);
+  --muted: oklch(0.955 0.006 262);
+  --muted-foreground: oklch(0.47 0.025 265);
+  --accent: oklch(0.945 0.015 266);
+  --accent-foreground: oklch(0.28 0.06 268);
+  --destructive: oklch(0.57 0.2 25);
+  --border: oklch(0.905 0.01 262);
+  --input: oklch(0.89 0.012 262);
+  --ring: oklch(0.47 0.2 268);
+
+
+  /* Cores da carta */
+  --orbit-line: oklch(0.47 0.05 268 / 0.28);
+  --orbit-stage: oklch(0.972 0.009 266);
+  --orbit-label: oklch(0.47 0.025 265);
+  --sun: oklch(0.22 0.04 268);
+  --sun-foreground: oklch(0.985 0.005 268);
+  --planet: oklch(0.47 0.2 268);
+  --planet-soft: oklch(0.47 0.2 268 / 0.14);
+  --urgent: oklch(0.6 0.2 32);
+  --urgent-soft: oklch(0.6 0.2 32 / 0.14);
+  --achieved: oklch(0.7 0.15 72);
+  --achieved-soft: oklch(0.7 0.15 72 / 0.16);
+}
+
+.dark {
+  --background: oklch(0.165 0.022 268);
+  --foreground: oklch(0.94 0.008 262);
+  --card: oklch(0.2 0.025 268);
+  --card-foreground: oklch(0.94 0.008 262);
+  --popover: oklch(0.21 0.026 268);
+  --popover-foreground: oklch(0.94 0.008 262);
+  --primary: oklch(0.72 0.14 270);
+  --primary-foreground: oklch(0.17 0.03 268);
+  --secondary: oklch(0.25 0.025 268);
+  --secondary-foreground: oklch(0.92 0.008 262);
+  --muted: oklch(0.24 0.022 268);
+  --muted-foreground: oklch(0.72 0.02 265);
+  --accent: oklch(0.27 0.03 268);
+  --accent-foreground: oklch(0.94 0.008 262);
+  --destructive: oklch(0.68 0.18 28);
+  --border: oklch(0.29 0.025 268);
+  --input: oklch(0.32 0.028 268);
+  --ring: oklch(0.72 0.14 270);
+
+
+  --orbit-line: oklch(0.8 0.04 268 / 0.22);
+  --orbit-stage: oklch(0.15 0.026 270);
+  --orbit-label: oklch(0.72 0.02 265);
+  --sun: oklch(0.96 0.01 262);
+  --sun-foreground: oklch(0.17 0.03 268);
+  --planet: oklch(0.72 0.14 270);
+  --planet-soft: oklch(0.72 0.14 270 / 0.17);
+  --urgent: oklch(0.72 0.17 35);
+  --urgent-soft: oklch(0.72 0.17 35 / 0.17);
+  --achieved: oklch(0.82 0.13 80);
+  --achieved-soft: oklch(0.82 0.13 80 / 0.16);
+}
+
+@theme inline {
+  --font-sans: 'Schibsted Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-urgent: var(--urgent);
+  --color-achieved: var(--achieved);
+  --color-planet: var(--planet);
+}
+
+@theme {
+  --animate-qr-scan: qr-scan 2.6s ease-in-out infinite;
+  --animate-twinkle: twinkle 3.2s ease-in-out infinite;
+  --animate-nebula: nebula 38s ease-in-out infinite alternate;
+  --animate-sky-slow: sky-spin 900s linear infinite;
+  --animate-sky-fast: sky-spin 420s linear infinite;
+  --animate-shooting: shooting 13s ease-in infinite;
+  --animate-corona: corona 4.5s ease-in-out infinite;
+
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 0.2;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes nebula {
+    0% {
+      translate: 0 0;
+      scale: 1;
+    }
+    100% {
+      translate: 6vmax -4vmax;
+      scale: 1.18;
+    }
+  }
+
+  /* Usa a propriedade rotate: não briga com o translate de centralização */
+  @keyframes sky-spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  @keyframes shooting {
+    0%,
+    88% {
+      opacity: 0;
+      transform: rotate(-28deg) translateX(0);
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: rotate(-28deg) translateX(-38vmax);
+    }
+  }
+
+  @keyframes corona {
+    0%,
+    100% {
+      opacity: 0.55;
+      scale: 1;
+    }
+    50% {
+      opacity: 1;
+      scale: 1.08;
+    }
+  }
+
+  @keyframes qr-scan {
+    0%,
+    100% {
+      top: 0.75rem;
+    }
+    50% {
+      top: calc(100% - 0.75rem);
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+}
+
+/* Palco da carta orbital: um brilho suave no centro, como uma nebulosa */
+.orbit-stage {
+  background:
+    radial-gradient(
+      ellipse 60% 55% at 50% 50%,
+      color-mix(in oklch, var(--planet) 13%, var(--orbit-stage)) 0%,
+      var(--orbit-stage) 70%
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

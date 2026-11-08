@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Suas metas em órbita: quanto mais perto do prazo, mais perto do centro."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>GoalSpace</title>
+    <script>
+      // Aplica o tema antes da primeira pintura, para não piscar
+      try {
+        const saved = localStorage.getItem('goalspace.theme')
+        const dark =
+          saved === 'dark' ||
+          (saved !== 'light' &&
+            matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.classList.toggle('dark', dark)
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

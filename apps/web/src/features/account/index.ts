@@ -1,0 +1,5 @@
+export { PasswordSection } from './components/password-section'
+export { ProfileSection } from './components/profile-section'
+export { ReportSection } from './components/report-section'
+export { SettingsSection } from './components/settings-section'
+export { profileQuery } from './queries'
